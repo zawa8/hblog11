@@ -7,23 +7,48 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { useEffect, useState } from 'react'
 
 import { Form, FormControl, FormDescription, FormField, FormLabel, FormMessage, FormItem } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Combobox } from '@/components/ui/combobox'
 
 const formSchema = z.object({
   title: z.string().min(1, {
     message: 'Title is required',
   }),
+  categoryId: z.string().min(1, {
+    message: 'Category is required',
+  }),
 })
 
 const CreatePage = () => {
   const router = useRouter()
+  const [categories, setCategories] = useState<{ label: string; value: string }[]>([])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/api/categories')
+        const formattedCategories = response.data.map((category: { id: string; name: string }) => ({
+          label: category.name,
+          value: category.id,
+        }))
+        setCategories(formattedCategories)
+      } catch (error) {
+        toast.error('Failed to load categories')
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
+      categoryId: '',
     },
   })
 
@@ -42,9 +67,9 @@ const CreatePage = () => {
   return (
     <div className="mx-auto flex h-full max-w-5xl p-6 md:items-center md:justify-center">
       <div>
-        <h1 className="text-2xl">Name your course</h1>
+        <h1 className="text-2xl">Create your course</h1>
         <p className="text-sm text-slate-600">
-          What would you like to name your course? Don&apos;t worry, you can change this later.
+          What would you like to name your course and what category does it belong to?
         </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-8">
@@ -58,6 +83,20 @@ const CreatePage = () => {
                     <Input disabled={isSubmitting} placeholder="e.g. 'Advanced web development'" {...field} />
                   </FormControl>
                   <FormDescription>What will you teach in this course?</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Combobox options={categories} {...field} />
+                  </FormControl>
+                  <FormDescription>Select the category that best fits your course</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

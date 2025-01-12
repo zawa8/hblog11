@@ -6,7 +6,7 @@ import { isTeacher } from '@/lib/teacher'
 export async function POST(request: NextRequest) {
   try {
     const { userId } = auth()
-    const { title } = await request.json()
+    const { title, categoryId } = await request.json()
 
     if (!userId || !isTeacher(userId)) {
       return new NextResponse('Unauthorized', { status: 401 })
@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
     const course = await db.course.create({
       data: {
         title,
+        categoryId,
         createdById: userId,
       },
     })
