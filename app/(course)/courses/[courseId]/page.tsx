@@ -66,7 +66,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Left Column - Course Details */}
         <div className="flex-1">
-          <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
+          <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
             <Image
               src={typedCourse.imageUrl || '/placeholder.jpg'}
               alt={typedCourse.title}
@@ -85,9 +85,9 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
               ${typedCourse.price}
             </div>
           </div>
-          <div className="text-slate-700 mb-4">
-            <Preview value={typedCourse.description!} />
-          </div>
+          <p className="text-slate-700 mb-4">
+            {typedCourse.description}
+          </p>
 
           {/* Attachments Section */}
           {typedCourse.attachments.length > 0 && (
@@ -103,7 +103,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
                     className="flex items-center p-3 bg-sky-100 border border-sky-200 rounded-md hover:bg-sky-200 transition"
                   >
                     <File className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-sm line-clamp-1">{attachment.name}</span>
+                    <p className="text-sm line-clamp-1">{attachment.name}</p>
                   </a>
                 ))}
               </div>
