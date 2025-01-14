@@ -1,42 +1,42 @@
-import { auth } from "@clerk/nextjs";
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import Mux from "@mux/mux-node";
+import { auth } from '@clerk/nextjs'
+import { NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import Mux from '@mux/mux-node'
 
 const { Video } = new Mux(
   process.env.MUX_TOKEN_ID!,
   process.env.MUX_TOKEN_SECRET!
-);
+)
 
 export async function POST(
   req: Request,
   { params }: { params: { courseId: string } }
 ) {
   try {
-    const { userId } = auth();
-    const { courseId } = params;
-    const { recordingUrl, title } = await req.json();
+    const { userId } = auth()
+    const { courseId } = params
+    const { recordingUrl, title } = await req.json()
 
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 })
     }
 
     const course = await db.course.findUnique({
       where: {
         id: courseId,
-        createdById: userId,
-      },
-    });
+        createdById: userId
+      }
+    })
 
     if (!course) {
-      return new NextResponse("Course not found", { status: 404 });
+      return new NextResponse('Course not found', { status: 404 })
     }
 
     // Create a new Mux asset from the recording URL
     const asset = await Video.Assets.create({
       input: recordingUrl,
-      playback_policy: "public",
-    });
+      playback_policy: 'public'
+    })
 
     // Store the recording information
     const recording = await db.liveSessionRecording.create({
@@ -45,14 +45,14 @@ export async function POST(
         title,
         muxAssetId: asset.id,
         playbackId: asset.playback_ids?.[0]?.id,
-        sessionDate: new Date(),
-      },
-    });
+        sessionDate: new Date()
+      }
+    })
 
-    return NextResponse.json(recording);
+    return NextResponse.json(recording)
   } catch (error) {
-    console.error("[COURSE_ID_LIVE_RECORDING]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error('[COURSE_ID_LIVE_RECORDING]', error)
+    return new NextResponse('Internal Error', { status: 500 })
   }
 }
 
@@ -61,20 +61,20 @@ export async function GET(
   { params }: { params: { courseId: string } }
 ) {
   try {
-    const { courseId } = params;
+    const { courseId } = params
 
     const recordings = await db.liveSessionRecording.findMany({
       where: {
-        courseId,
+        courseId
       },
       orderBy: {
-        createdAt: "desc",
-      },
-    });
+        createdAt: 'desc'
+      }
+    })
 
-    return NextResponse.json(recordings);
+    return NextResponse.json(recordings)
   } catch (error) {
-    console.error("[COURSE_ID_LIVE_RECORDING_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error('[COURSE_ID_LIVE_RECORDING_GET]', error)
+    return new NextResponse('Internal Error', { status: 500 })
   }
 }

@@ -2,11 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import toast from 'react-hot-toast';
 import MuxPlayer from '@mux/mux-player-react';
+import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 
 interface LiveClassroomProps {
   courseId: string;
@@ -27,8 +26,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [isLive, setIsLive] = useState(false);
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
   const fetchRecordings = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/${courseId}/live/recording`);
@@ -36,7 +33,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     } catch (error) {
       toast.error('Failed to fetch recordings');
     }
-  }, [courseId])
+  }, [courseId]);
 
   useEffect(() => {
     fetchRecordings();
@@ -139,9 +136,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         <div className='relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden'>
           {localVideoTrack && (
             <div className='absolute inset-0'>
-              <div 
-                id='local-video' 
-                className='w-full h-full' 
+              <div
+                id='local-video'
+                className='w-full h-full'
                 ref={(element) => {
                   if (element) {
                     localVideoTrack.play(element);
@@ -153,7 +150,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
           {!localVideoTrack && (
             <div className='absolute inset-0 flex items-center justify-center'>
               <p className='text-slate-400'>
-                {isTeacher 
+                {isTeacher
                   ? 'Click Start Live to begin streaming'
                   : 'Waiting for teacher to start the live stream'
                 }
