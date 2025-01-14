@@ -59,7 +59,7 @@ export async function GET(
 
     return NextResponse.json(schedules)
   } catch (error) {
-    console.error('[SCHEDULES_GET]', error)
+    // console.error('[SCHEDULES_GET]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }
@@ -134,7 +134,7 @@ export async function PUT(
 
     return NextResponse.json(newSchedules)
   } catch (error) {
-    console.error('[SCHEDULES_UPDATE]', error)
+    // console.error('[SCHEDULES_UPDATE]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }

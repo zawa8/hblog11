@@ -120,7 +120,7 @@ export async function POST(
 
     return NextResponse.json(purchase)
   } catch (error) {
-    console.error('[BOOK_ERROR]', error)
+    // console.error('[BOOK_ERROR]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }

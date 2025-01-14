@@ -97,7 +97,7 @@ export async function GET(
 
     return NextResponse.json(course)
   } catch (error) {
-    console.error('[COURSE_GET]', error)
+    // console.error('[COURSE_GET]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }

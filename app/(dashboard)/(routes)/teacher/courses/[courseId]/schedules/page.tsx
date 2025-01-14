@@ -88,6 +88,7 @@ const SchedulePage = ({ params }: { params: { courseId: string } }) => {
             speaker
           }))}
           onScheduleChange={handleScheduleChange}
+          isSaving={isSaving} // Pass isSaving to ScheduleForm
         />
       </div>
     </div>

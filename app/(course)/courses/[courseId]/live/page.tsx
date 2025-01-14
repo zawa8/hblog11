@@ -61,7 +61,7 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
     } catch (error: any) {
       const errorMessage = error?.response?.data || error?.message || 'Failed to load course data'
       toast.error(errorMessage)
-      console.error('[FETCH_COURSE_ERROR]:', error)
+      // console.error('[FETCH_COURSE_ERROR]:', error)
     } finally {
       setIsInitialLoading(false)
     }
