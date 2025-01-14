@@ -38,13 +38,21 @@ export async function POST(
       playback_policy: 'public'
     })
 
+    if (!asset.playback_ids || asset.playback_ids.length === 0) {
+      console.error('[COURSE_ID_LIVE_RECORDING]: No playback IDs found for asset', asset)
+      return new NextResponse('Failed to create recording', { status: 500 })
+    }
+
+
+    const playbackId = asset.playback_ids[0].id
+
     // Store the recording information
     const recording = await db.liveSessionRecording.create({
       data: {
         courseId,
         title,
         muxAssetId: asset.id,
-        playbackId: asset.playback_ids?.[0]?.id,
+        playbackId: playbackId,
         sessionDate: new Date()
       }
     })
