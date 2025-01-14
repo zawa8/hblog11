@@ -105,7 +105,7 @@ export async function PUT(
     // Create new schedules
     const newSchedules = await Promise.all(
       schedules.map(async (schedule: ScheduleInput, index: number) => {
-        const result = await db.$executeRaw`
+        await db.$executeRaw`
           INSERT INTO "Schedule" ("id", "courseId", "time", "topic", "speaker", "position", "createdAt", "updatedAt")
           VALUES (
             gen_random_uuid(),
