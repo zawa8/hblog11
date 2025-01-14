@@ -18,7 +18,7 @@ export async function GET() {
 
     return NextResponse.json(categories)
   } catch (error) {
-    console.log('[CATEGORIES]', error)
+    console.log('[CATEGORIES]', error) // eslint-disable-line no-console
     return new NextResponse('Internal Error', { status: 500 })
   }
 }
