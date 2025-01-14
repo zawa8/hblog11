@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from 'react'
 import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng'
 import axios from 'axios'
 import MuxPlayer from '@mux/mux-player-react'
-import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
+import { Button } from '@/components/ui/button'
 
 interface LiveClassroomProps {
   courseId: string;
@@ -43,7 +43,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     const initAgora = async () => {
       const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
       setClient(agoraClient)
-    };
+    }
 
     initAgora()
   }, [])
@@ -91,7 +91,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     } finally {
       setIsLoading(false)
     }
-  };
+  }
 
   const stopLiveStream = async () => {
     try {
