@@ -4,12 +4,12 @@ import Image from 'next/image'
 import { format } from 'date-fns'
 import { File, Loader2 } from 'lucide-react'
 import { Attachment, Category, Course, Purchase } from '@prisma/client'
-import { Button } from '@/components/ui/button'
 import { useAuth } from '@clerk/nextjs'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
 interface Schedule {
   id: string;
@@ -40,7 +40,7 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
   const fetchCourseData = useCallback(async () => {
     try {
       setIsInitialLoading(true)
-      
+
       // Fetch course details
       const courseResponse = await axios.get(`/api/courses/${params.courseId}`)
       const course = courseResponse.data
@@ -168,30 +168,30 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
               <div>
                 <h3 className="font-semibold">Available Seats</h3>
                 <p className="text-sm text-slate-600">
-                  {course.maxParticipants 
+                  {course.maxParticipants
                     ? `${course.maxParticipants - course.purchases.length} of ${course.maxParticipants} seats remaining`
                     : 'Unlimited seats available'}
                 </p>
               </div>
               <div className="flex flex-col gap-2">
                 {course.purchases.some(p => p.userId === userId) ? (
-                  <Button 
+                  <Button
                     size="lg"
                     variant="outline"
                     disabled={!course.isLiveActive}
                     onClick={() => router.push(`/courses/${params.courseId}/live-classroom`)}
                     className="w-full"
                   >
-                    {course.isLiveActive ? "Join Live Session" : "Waiting for Live Session"}
+                   {course.isLiveActive? 'Join Live Session' : 'Waiting for Live Session'}
                   </Button>
                 ) : (
-                  <Button 
+                  <Button
                     size="lg"
                     disabled={
                       isLoading ||
-                      !userId || 
-                      (course.maxParticipants ? 
-                        course.purchases.length >= course.maxParticipants : 
+                      !userId ||
+                      (course.maxParticipants?
+                        course.purchases.length >= course.maxParticipants:
                         false)
                     }
                     onClick={handleBooking}
@@ -213,7 +213,7 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
           <h2 className="text-xl font-semibold mb-4">Course Schedule</h2>
           <div className="space-y-4">
             {course.schedules.map((schedule) => (
-              <div 
+              <div
                 key={schedule.id}
                 className="bg-slate-100 rounded-lg p-4"
               >
