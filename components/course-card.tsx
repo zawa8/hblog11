@@ -40,7 +40,7 @@ export default function CourseCard({
           </div>
           <div className="flex items-center gap-2">
             <p className="text-xs text-muted-foreground">{category}</p>
-            <Badge variant={courseType === 'LIVE' ? "destructive" : "recorded"} className="flex items-center gap-1">
+            <Badge variant={courseType === 'LIVE' ? 'destructive' : 'recorded'} className="flex items-center gap-1">
               {courseType === 'LIVE' ? <RadioTowerIcon className="h-3 w-3" /> : null}
               {courseType}
             </Badge>

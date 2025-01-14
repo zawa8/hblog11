@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
 import { RtcRole, RtcTokenBuilder } from 'agora-access-token'
-import { db } from '@/lib/db'
 import { Prisma, Course } from '@prisma/client'
+import { db } from '@/lib/db'
 
 type CourseWithPurchases = {
   id: string;
@@ -11,8 +11,6 @@ type CourseWithPurchases = {
   maxParticipants: number | null;
   purchases: Array<{ id: string }>;
 };
-
-
 interface LiveSessionRequest {
   maxParticipants?: number;
   nextLiveDate?: string;
@@ -55,7 +53,7 @@ export async function POST(
 
     // Check participant limit for non-teacher users
     if (course?.createdById !== userId && course?.maxParticipants) {
-      const participantCount = course.purchases.length;
+      const participantCount = course.purchases.length
       if (participantCount >= course.maxParticipants) {
         return new NextResponse('Maximum participants limit reached', { status: 403 })
       }
@@ -67,13 +65,13 @@ export async function POST(
       channelName = `course_${courseId}_${Date.now()}`
       const updateData = {
         agoraChannelName: channelName
-      } as const;
+      } as const
 
       if (maxParticipants !== undefined) {
-        (updateData as any).maxParticipants = maxParticipants;
+        (updateData as any).maxParticipants = maxParticipants
       }
       if (nextLiveDate) {
-        (updateData as any).nextLiveDate = new Date(nextLiveDate);
+        (updateData as any).nextLiveDate = new Date(nextLiveDate)
       }
 
       await db.course.update({

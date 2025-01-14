@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { isTeacher } from '@/lib/teacher'
-import { Prisma } from '@prisma/client'
 
 export async function POST(req: NextRequest, { params }: { params: { courseId: string } }) {
   try {

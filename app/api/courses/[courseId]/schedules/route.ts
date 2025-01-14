@@ -117,7 +117,7 @@ export async function PUT(
             NOW(),
             NOW()
           )
-        `;
+        `
 
         // Fetch the newly created schedule
         const [newSchedule] = await db.$queryRaw<Schedule[]>`
@@ -126,9 +126,9 @@ export async function PUT(
           AND "position" = ${index}
           ORDER BY "createdAt" DESC
           LIMIT 1
-        `;
+        `
 
-        return newSchedule;
+        return newSchedule
       })
     )
 

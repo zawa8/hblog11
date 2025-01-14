@@ -9,13 +9,6 @@ import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { Course } from '@prisma/client'
-
-// Extend Course type to include live course fields
-type CourseWithLive = Course & {
-  maxParticipants?: number | null;
-  nextLiveDate?: Date | null;
-}
-
 import {
   Form,
   FormControl,
@@ -27,6 +20,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+
+// Extend Course type to include live course fields
+type CourseWithLive = Course & {
+  maxParticipants?: number | null;
+  nextLiveDate?: Date | null;
+}
 
 interface LiveSettingsFormProps {
   initialData: CourseWithLive
@@ -51,33 +50,31 @@ export const LiveSettingsForm = ({ initialData, courseId }: LiveSettingsFormProp
   useEffect(() => {
     const checkLiveAvailability = () => {
       if (!initialData.nextLiveDate) return;
-      
-      const nextLive = new Date(initialData.nextLiveDate);
-      const now = new Date();
-      const timeDiff = nextLive.getTime() - now.getTime();
-      const minutesDiff = Math.floor(timeDiff / (1000 * 60));
+      const nextLive = new Date(initialData.nextLiveDate)
+      const now = new Date()
+      const timeDiff = nextLive.getTime() - now.getTime()
+      const minutesDiff = Math.floor(timeDiff / (1000 * 60))
       
       // Enable button 5 minutes before scheduled time
-      setCanStartLive(minutesDiff <= 5 && minutesDiff >= -120); // Allow starting up to 2 hours after scheduled time
+      setCanStartLive(minutesDiff <= 5 && minutesDiff >= -120) // Allow starting up to 2 hours after scheduled time
     };
+    checkLiveAvailability()
+    const interval = setInterval(checkLiveAvailability, 30000) // Check every 30 seconds
 
-    checkLiveAvailability();
-    const interval = setInterval(checkLiveAvailability, 30000); // Check every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [initialData.nextLiveDate]);
+    return () => clearInterval(interval)
+  }, [initialData.nextLiveDate])
 
   const startLiveSession = async () => {
     try {
       await axios.patch(`/api/courses/${courseId}/live`, {
         isLiveActive: true
-      });
-      toast.success('Live session started');
-      router.push(`/courses/${courseId}/live`);
+      })
+      toast.success('Live session started')
+      router.push(`/courses/${courseId}/live`)
     } catch {
-      toast.error('Failed to start live session');
+      toast.error('Failed to start live session')
     }
-  };
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -137,10 +134,10 @@ export const LiveSettingsForm = ({ initialData, courseId }: LiveSettingsFormProp
                 className="w-full"
               >
                 {initialData.isLiveActive 
-                  ? "Live Session in Progress"
-                  : canStartLive 
-                    ? "Start Live Session"
-                    : "Live Session Not Available Yet"}
+                  ? 'Live Session in Progress'
+                  : canStartLive
+                    ? 'Start Live Session'
+                    : 'Live Session Not Available Yet'}
               </Button>
               {!canStartLive && !initialData.isLiveActive && (
                 <p className="text-xs text-muted-foreground mt-2 text-center">

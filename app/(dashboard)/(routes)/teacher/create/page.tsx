@@ -29,13 +29,13 @@ const formSchema = z.object({
   nextLiveDate: z.string().optional(),
 }).refine((data) => {
   if (data.courseType === 'LIVE') {
-    return data.maxParticipants !== undefined && data.nextLiveDate !== undefined;
+    return data.maxParticipants !== undefined && data.nextLiveDate !== undefined
   }
-  return true;
+  return true
 }, {
-  message: "Max participants and next live date are required for live courses",
+  message: 'Max participants and next live date are required for live courses',
   path: ["courseType"],
-});
+})
 
 const CreatePage = () => {
   const router = useRouter()
@@ -164,12 +164,12 @@ const CreatePage = () => {
                     <FormItem>
                       <FormLabel>Maximum Participants</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          disabled={isSubmitting} 
-                          placeholder="e.g. 20" 
+                        <Input
+                          type="number"
+                          disabled={isSubmitting}
+                          placeholder="e.g. 20"
                           {...field}
-                          onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : '')} 
+                          onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : '')}
                         />
                       </FormControl>
                       <FormDescription>Set the maximum number of students that can join this live course</FormDescription>
@@ -184,10 +184,10 @@ const CreatePage = () => {
                     <FormItem>
                       <FormLabel>Next Live Session Date & Time</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="datetime-local" 
-                          disabled={isSubmitting} 
-                          {...field} 
+                        <Input
+                          type="datetime-local"
+                          disabled={isSubmitting}
+                          {...field}
                         />
                       </FormControl>
                       <FormDescription>When will the first live session take place?</FormDescription>

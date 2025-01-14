@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import { Purchase } from '@prisma/client'
+import { db } from '@/lib/db'
 
 interface Chapter {
   id: string;
@@ -102,20 +102,20 @@ export async function POST(
       where: {
         courseId: params.courseId,
       }
-    }) as Chapter[];
+    }) as Chapter[]
 
-    const currentDate = new Date();
+    const currentDate = new Date()
     const hasUpcomingSessions = chapters
       .filter(chapter => chapter.endTime !== null)
-      .some(chapter => new Date(chapter.endTime!) > currentDate);
+      .some(chapter => new Date(chapter.endTime!) > currentDate)
 
     // If no upcoming sessions and course is full, unpublish it
-    if (!hasUpcomingSessions && typedCourse.maxParticipants && 
+    if (!hasUpcomingSessions && typedCourse.maxParticipants &&
         typedCourse.purchases.length >= typedCourse.maxParticipants) {
       await db.course.update({
         where: { id: params.courseId },
         data: { isPublished: false }
-      });
+      })
     }
 
     return NextResponse.json(purchase)

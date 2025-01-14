@@ -1,15 +1,12 @@
 'use client'
 
-import * as z from 'zod'
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
-
+import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Trash2 } from 'lucide-react'
 
 interface Schedule {
   id: string

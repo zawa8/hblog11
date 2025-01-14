@@ -53,22 +53,22 @@ async function checkAndUpdateCourseStatus(courseId: string) {
         }
       }
     }
-  }) as Course | null;
+  }) as Course | null
 
-  if (!course || course.courseType !== 'LIVE' || !course.isPublished) return;
+  if (!course || course.courseType !== 'LIVE' || !course.isPublished) return
 
-  const currentDate = new Date();
+  const currentDate = new Date()
   const hasUpcomingSessions = course.chapters
     .filter(chapter => chapter.startTime !== null && chapter.endTime !== null)
-    .some(chapter => new Date(chapter.endTime!) > currentDate);
+    .some(chapter => new Date(chapter.endTime!) > currentDate)
 
   // Unpublish if no upcoming sessions and course is full
-  if (!hasUpcomingSessions && course.maxParticipants && 
+  if (!hasUpcomingSessions && course.maxParticipants &&
       course.purchases.length >= course.maxParticipants) {
     await db.course.update({
       where: { id: courseId },
       data: { isPublished: false }
-    });
+    })
   }
 }
 
@@ -78,7 +78,7 @@ export async function GET(
 ) {
   try {
     // Check and update course status first
-    await checkAndUpdateCourseStatus(params.courseId);
+    await checkAndUpdateCourseStatus(params.courseId)
 
     const course = await db.course.findUnique({
       where: {

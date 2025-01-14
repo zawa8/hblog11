@@ -16,7 +16,7 @@ const ReactQuill = dynamic(
       return <RQ ref={forwardedRef} {...props} />
     }
   },
-  { 
+  {
     ssr: false,
     loading: () => <div className="h-20 w-full bg-slate-200 animate-pulse" />
   }

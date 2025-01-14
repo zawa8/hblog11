@@ -1,12 +1,12 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
-import { db } from '@/lib/db'
 import { Attachment, Category, Chapter, Course, Purchase } from '@prisma/client'
+import { File } from 'lucide-react'
+import Image from 'next/image'
+import { db } from '@/lib/db'
 import { Preview } from '@/components/preview'
 import CourseEnrollButton from './chapters/[chapterId]/_components/course-enroll-button'
 import { Separator } from '@/components/ui/separator'
-import { File } from 'lucide-react'
-import Image from 'next/image'
 
 type CourseWithRelations = Course & {
   chapters: Chapter[];
@@ -118,7 +118,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
             {!isEnrolled ? (
               <CourseEnrollButton courseId={params.courseId} price={typedCourse.price!} />
             ) : typedCourse.chapters[0] ? (
-              <a 
+              <a
                 href={`/courses/${typedCourse.id}/chapters/${typedCourse.chapters[0].id}`}
                 className="inline-flex items-center justify-center rounded-md bg-blue-600 px-6 py-3 text-base font-medium text-white hover:bg-blue-700 transition-colors w-full"
               >
