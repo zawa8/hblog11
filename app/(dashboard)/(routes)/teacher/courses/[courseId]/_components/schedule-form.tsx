@@ -1,7 +1,7 @@
 'use client'
 
 import axios from 'axios'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { Trash2 } from 'lucide-react'
@@ -54,7 +54,6 @@ export const ScheduleForm = ({
     })
     setSchedules(newSchedules)
   }
-
   const onSubmit = async () => {
     try {
       setIsLoading(true)

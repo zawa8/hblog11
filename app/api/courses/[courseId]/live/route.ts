@@ -1,7 +1,6 @@
 import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
 import { RtcRole, RtcTokenBuilder } from 'agora-access-token'
-import { Prisma, Course } from '@prisma/client'
 import { db } from '@/lib/db'
 
 type CourseWithPurchases = {

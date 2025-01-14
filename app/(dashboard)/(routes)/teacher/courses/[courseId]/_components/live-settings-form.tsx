@@ -49,15 +49,14 @@ export const LiveSettingsForm = ({ initialData, courseId }: LiveSettingsFormProp
 
   useEffect(() => {
     const checkLiveAvailability = () => {
-      if (!initialData.nextLiveDate) return;
+      if (!initialData.nextLiveDate) return
       const nextLive = new Date(initialData.nextLiveDate)
       const now = new Date()
       const timeDiff = nextLive.getTime() - now.getTime()
       const minutesDiff = Math.floor(timeDiff / (1000 * 60))
-      
       // Enable button 5 minutes before scheduled time
       setCanStartLive(minutesDiff <= 5 && minutesDiff >= -120) // Allow starting up to 2 hours after scheduled time
-    };
+    }
     checkLiveAvailability()
     const interval = setInterval(checkLiveAvailability, 30000) // Check every 30 seconds
 
@@ -122,7 +121,7 @@ export const LiveSettingsForm = ({ initialData, courseId }: LiveSettingsFormProp
           </div>
           <div className="mt-1">
             Next Live Session: {initialData.nextLiveDate
-              ? new Date(initialData.nextLiveDate).toLocaleString() 
+              ? new Date(initialData.nextLiveDate).toLocaleString()
               : 'Not scheduled'}
           </div>
           {initialData.nextLiveDate && (
@@ -133,7 +132,7 @@ export const LiveSettingsForm = ({ initialData, courseId }: LiveSettingsFormProp
                 variant="outline"
                 className="w-full"
               >
-                {initialData.isLiveActive 
+                {initialData.isLiveActive
                   ? 'Live Session in Progress'
                   : canStartLive
                     ? 'Start Live Session'

@@ -1,6 +1,5 @@
 import { auth } from '@clerk/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
-import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { isTeacher } from '@/lib/teacher'
 

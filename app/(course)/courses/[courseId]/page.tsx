@@ -4,9 +4,7 @@ import { Attachment, Category, Chapter, Course, Purchase } from '@prisma/client'
 import { File } from 'lucide-react'
 import Image from 'next/image'
 import { db } from '@/lib/db'
-import { Preview } from '@/components/preview'
 import CourseEnrollButton from './chapters/[chapterId]/_components/course-enroll-button'
-import { Separator } from '@/components/ui/separator'
 
 type CourseWithRelations = Course & {
   chapters: Chapter[];

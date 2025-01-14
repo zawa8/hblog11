@@ -34,7 +34,7 @@ const formSchema = z.object({
   return true
 }, {
   message: 'Max participants and next live date are required for live courses',
-  path: ["courseType"],
+  path: ['courseType'],
 })
 
 const CreatePage = () => {
