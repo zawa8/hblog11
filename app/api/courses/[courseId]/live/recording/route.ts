@@ -7,7 +7,6 @@ const { Video } = new Mux(
   process.env.MUX_TOKEN_ID!,
   process.env.MUX_TOKEN_SECRET!
 )
-
 export async function POST(
   req: Request,
   { params }: { params: { courseId: string } }
@@ -42,7 +41,6 @@ export async function POST(
       console.error('[COURSE_ID_LIVE_RECORDING]: No playback IDs found for asset', asset)
       return new NextResponse('Failed to create recording', { status: 500 })
     }
-
 
     const playbackId = asset.playback_ids[0].id
 

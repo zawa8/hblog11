@@ -63,7 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: { courseId: s
 
     return NextResponse.json({ url: session.url })
   } catch (error) {
-    console.error(error)
+    // console.error(error)
     return new NextResponse('Internal server error', { status: 500 })
   }
 }
