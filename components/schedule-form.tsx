@@ -14,6 +14,7 @@ interface ScheduleEntry {
 interface ScheduleFormProps {
   initialSchedule?: ScheduleEntry[]
   onScheduleChange: (schedule: ScheduleEntry[]) => void
+  isSaving?: boolean;
 }
 
 export const ScheduleForm = ({
