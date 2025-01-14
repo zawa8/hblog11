@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { Attachment } from '@prisma/client'
 
 type GetChapterArgs = {
   userId: string
@@ -27,7 +28,7 @@ export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs
     }
 
     let muxData = null
-    let attachments = []
+    let attachments: Attachment[] = []
     let nextChapter = null
 
     if (purchase) {
