@@ -10,7 +10,7 @@ interface ScheduleEntry {
   topic: string
   speaker: string
   isSaving?: boolean; // Add isSaving prop
-
+}
 interface ScheduleFormProps {
   initialSchedule?: ScheduleEntry[]
   onScheduleChange: (schedule: ScheduleEntry[]) => void
