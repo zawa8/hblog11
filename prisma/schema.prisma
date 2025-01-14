@@ -27,16 +27,34 @@ model Course {
   agoraToken      String? // Token for live streaming
   isLiveActive    Boolean @default(false)
   nextLiveDate    DateTime?
+  maxParticipants Int?    // Maximum number of participants allowed in live session
 
   attachments  Attachment[]
   category     Category?    @relation(fields: [categoryId], references: [id])
   categoryId   String?
   chapters     Chapter[]
+  schedules    Schedule[]   // New relation for live course schedules
   purchases    Purchase[]
   recordings   LiveSessionRecording[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  time      String   // Store time in HH:mm format
+  topic     String
+  speaker   String
+  position  Int      // For ordering schedule entries
+  
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
 }
 
 model Category {
@@ -68,6 +86,12 @@ model Chapter {
   position    Int
   isPublished Boolean @default(false)
   isFree      Boolean @default(false)
+  
+  // Schedule related fields
+  startTime   DateTime?  // Start time of the session
+  endTime     DateTime?  // End time of the session
+  topic       String?    // Topic of the session
+  speaker     String?    // Speaker for the session
 
   course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId     String

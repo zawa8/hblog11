@@ -25,7 +25,17 @@ const formSchema = z.object({
   courseType: z.enum(['RECORDED', 'LIVE'], {
     required_error: 'Course type is required',
   }),
-})
+  maxParticipants: z.number().min(1).optional(),
+  nextLiveDate: z.string().optional(),
+}).refine((data) => {
+  if (data.courseType === 'LIVE') {
+    return data.maxParticipants !== undefined && data.nextLiveDate !== undefined;
+  }
+  return true;
+}, {
+  message: "Max participants and next live date are required for live courses",
+  path: ["courseType"],
+});
 
 const CreatePage = () => {
   const router = useRouter()
@@ -54,6 +64,8 @@ const CreatePage = () => {
       title: '',
       categoryId: '',
       courseType: 'RECORDED',
+      maxParticipants: undefined,
+      nextLiveDate: undefined,
     },
   })
 
@@ -143,6 +155,48 @@ const CreatePage = () => {
                 </FormItem>
               )}
             />
+            {form.watch('courseType') === 'LIVE' && (
+              <>
+                <FormField
+                  control={form.control}
+                  name='maxParticipants'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Maximum Participants</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          disabled={isSubmitting} 
+                          placeholder="e.g. 20" 
+                          {...field}
+                          onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : '')} 
+                        />
+                      </FormControl>
+                      <FormDescription>Set the maximum number of students that can join this live course</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='nextLiveDate'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Next Live Session Date & Time</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="datetime-local" 
+                          disabled={isSubmitting} 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription>When will the first live session take place?</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
             <div className='flex items-center gap-x-2'>
               <Link href='/teacher/courses'>
                 <Button type='button' variant='ghost'>

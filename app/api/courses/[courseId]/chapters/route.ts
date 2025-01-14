@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { isTeacher } from '@/lib/teacher'
+import { Prisma } from '@prisma/client'
 
 export async function POST(req: NextRequest, { params }: { params: { courseId: string } }) {
   try {
@@ -28,7 +29,13 @@ export async function POST(req: NextRequest, { params }: { params: { courseId: s
     const newPosition = lastChapter ? lastChapter.position + 1 : 1
 
     const newChapter = await db.chapter.create({
-      data: { title, courseId: params.courseId, position: newPosition },
+      data: {
+        title,
+        courseId: params.courseId,
+        position: newPosition,
+        isPublished: false,
+        isFree: false,
+      },
     })
 
     return NextResponse.json(newChapter)

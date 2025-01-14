@@ -1,8 +1,35 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import { CircleDollarSign, File, LayoutDashboard, ListChecks } from 'lucide-react'
+import { Prisma } from '@prisma/client'
 
 import { db } from '@/lib/db'
+
+interface Schedule {
+  id: string;
+  time: string;
+  topic: string;
+  speaker: string;
+  position: number;
+  courseId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+type CourseWithRelations = Prisma.CourseGetPayload<{
+  include: {
+    attachments: true;
+    chapters: {
+      include: {
+        muxData: true;
+      };
+    };
+  };
+}> & {
+  schedules: Schedule[];
+  maxParticipants?: number | null;
+  nextLiveDate?: Date | null;
+};
 import { IconBadge } from '@/components/icon-badge'
 import { TitleForm } from './_components/title-form'
 import { DescriptionForm } from './_components/description-form'
@@ -11,6 +38,8 @@ import CategoryForm from './_components/category-form'
 import { PriceForm } from './_components/price-form'
 import { AttachmentForm } from './_components/attachment-form'
 import { ChaptersForm } from './_components/chapters-form'
+import { ScheduleForm } from './_components/schedule-form'
+import { LiveSettingsForm } from './_components/live-settings-form'
 import { Banner } from '@/components/banner'
 import Actions from './_components/actions'
 
@@ -23,8 +52,25 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
   const course = await db.course.findUnique({
     where: { id: params.courseId, createdById: userId },
-    include: { attachments: { orderBy: { createdAt: 'desc' } }, chapters: { orderBy: { position: 'asc' } } },
-  })
+    include: { 
+      attachments: { orderBy: { createdAt: 'desc' } }, 
+      chapters: { 
+        include: { muxData: true },
+        orderBy: { position: 'asc' } 
+      }
+    }
+  }) as unknown as CourseWithRelations | null
+
+  // Fetch schedules separately
+  const schedules = course ? await db.$queryRaw<Schedule[]>`
+    SELECT * FROM "Schedule"
+    WHERE "courseId" = ${course.id}
+    ORDER BY position ASC
+  ` : []
+
+  if (course) {
+    course.schedules = schedules
+  }
 
   if (!course) {
     return redirect('/')
@@ -42,7 +88,9 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
     course.imageUrl,
     course.price,
     course.categoryId,
-    course.chapters.some((chapter) => chapter.isPublished),
+    course.courseType === 'LIVE' 
+      ? course.schedules.length > 0 // Check if there are schedule entries for live courses
+      : course.chapters.some((chapter) => chapter.isPublished), // Check for published chapters for recorded courses
   ]
 
   const totalFields = requiredFields.length
@@ -82,13 +130,38 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
             />
           </div>
           <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={ListChecks} />
-                <h2 className="text-xl">Course chapters</h2>
+            {course.courseType === 'LIVE' ? (
+              <>
+                <div>
+                  <div className="flex items-center gap-x-2">
+                    <IconBadge icon={ListChecks} />
+                    <h2 className="text-xl">Live Course Settings</h2>
+                  </div>
+                  <LiveSettingsForm
+                    initialData={course}
+                    courseId={course.id}
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-x-2">
+                    <IconBadge icon={ListChecks} />
+                    <h2 className="text-xl">Course Schedule</h2>
+                  </div>
+                  <ScheduleForm 
+                    courseId={course.id}
+                    initialSchedules={course.schedules}
+                  />
+                </div>
+              </>
+            ) : (
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListChecks} />
+                  <h2 className="text-xl">Course chapters</h2>
+                </div>
+                <ChaptersForm initialData={course} courseId={course.id} />
               </div>
-              <ChaptersForm initialData={course} courseId={course.id} />
-            </div>
+            )}
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={CircleDollarSign} />

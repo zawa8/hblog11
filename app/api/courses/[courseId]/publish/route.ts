@@ -2,6 +2,17 @@ import { auth } from '@clerk/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+interface Schedule {
+  id: string;
+  time: string;
+  topic: string;
+  speaker: string;
+  position: number;
+  courseId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: { courseId: string } }) {
   try {
     const { userId } = auth()
@@ -11,17 +22,27 @@ export async function PATCH(req: NextRequest, { params }: { params: { courseId: 
 
     const course = await db.course.findUnique({
       where: { id: params.courseId, createdById: userId },
-      include: { chapters: { include: { muxData: true } } },
+      include: { 
+        chapters: { include: { muxData: true } }
+      },
     })
+
+    // Fetch schedules separately
+    const schedules = course ? await db.$queryRaw<Schedule[]>`
+      SELECT * FROM "Schedule"
+      WHERE "courseId" = ${course.id}
+      ORDER BY position ASC
+    ` : []
 
     if (!course) {
       return new NextResponse('Not Found', { status: 404 })
     }
 
-    /** Should have a published chapter */
-    const hasPublishedChapter = course.chapters.some((chapter) => chapter.isPublished)
+    const isContentValid = course?.courseType === 'LIVE'
+      ? schedules.length > 0 // Live courses need at least one schedule entry
+      : course?.chapters.some((chapter) => chapter.isPublished) // Recorded courses need at least one published chapter
 
-    if (!course.title || !course.description || !course.imageUrl || !course.categoryId || !hasPublishedChapter) {
+    if (!course.title || !course.description || !course.imageUrl || !course.categoryId || !isContentValid) {
       return new NextResponse('Missing required fields', { status: 400 })
     }
 

@@ -1,9 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { BookOpenIcon } from 'lucide-react'
+import { BookOpenIcon, RadioTowerIcon } from 'lucide-react'
 import { formatPrice } from '@/lib/format'
 import { IconBadge } from './icon-badge'
 import { CourseProgress } from './course-progress'
+import { Badge } from '@/components/ui/badge'
 
 type CourseCardProps = {
   id: string
@@ -13,6 +14,7 @@ type CourseCardProps = {
   price: number
   progress: number | null
   category: string
+  courseType: 'RECORDED' | 'LIVE'
 }
 
 export default function CourseCard({
@@ -23,6 +25,7 @@ export default function CourseCard({
   price,
   progress,
   category,
+  courseType,
 }: CourseCardProps) {
   return (
     <Link href={`/courses/${id}`}>
@@ -35,7 +38,13 @@ export default function CourseCard({
           <div className="line-clamp-2 text-lg font-medium transition group-hover:text-primary md:text-base">
             {title}
           </div>
-          <p className="text-xs text-muted-foreground">{category}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-muted-foreground">{category}</p>
+            <Badge variant={courseType === 'LIVE' ? "destructive" : "recorded"} className="flex items-center gap-1">
+              {courseType === 'LIVE' ? <RadioTowerIcon className="h-3 w-3" /> : null}
+              {courseType}
+            </Badge>
+          </div>
           <div className="my-3 flex items-center gap-x-1 text-sm md:text-xs">
             <div className="flex items-center gap-x-1 text-slate-500">
               <IconBadge size="sm" icon={BookOpenIcon} />
