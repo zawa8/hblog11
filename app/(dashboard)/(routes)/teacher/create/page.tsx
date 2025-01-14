@@ -13,7 +13,7 @@ import { Form, FormControl, FormDescription, FormField, FormLabel, FormMessage, 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Combobox } from '@/components/ui/combobox'
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -70,22 +70,22 @@ const CreatePage = () => {
   }
 
   return (
-    <div className="mx-auto flex h-full max-w-5xl p-6 md:items-center md:justify-center">
+    <div className='mx-auto flex h-full max-w-5xl p-6 md:items-center md:justify-center'>
       <div>
-        <h1 className="text-2xl">Create your course</h1>
-        <p className="text-sm text-slate-600">
+        <h1 className='text-2xl'>Create your course</h1>
+        <p className='text-sm text-slate-600'>
           What would you like to name your course and what category does it belong to?
         </p>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className='mt-8 space-y-8'>
             <FormField
               control={form.control}
-              name="title"
+              name='title'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course title</FormLabel>
                   <FormControl>
-                    <Input disabled={isSubmitting} placeholder="e.g. 'Advanced web development'" {...field} />
+                    <Input disabled={isSubmitting} placeholder='e.g. "Advanced web development"' {...field} />
                   </FormControl>
                   <FormDescription>What will you teach in this course?</FormDescription>
                   <FormMessage />
@@ -94,7 +94,7 @@ const CreatePage = () => {
             />
             <FormField
               control={form.control}
-              name="categoryId"
+              name='categoryId'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
@@ -108,7 +108,7 @@ const CreatePage = () => {
             />
             <FormField
               control={form.control}
-              name="courseType"
+              name='courseType'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course Type</FormLabel>
@@ -116,21 +116,21 @@ const CreatePage = () => {
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex flex-col space-y-1"
+                      className='flex flex-col space-y-1'
                     >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
                         <FormControl>
-                          <RadioGroupItem value="RECORDED" />
+                          <RadioGroupItem value='RECORDED' />
                         </FormControl>
-                        <FormLabel className="font-normal">
+                        <FormLabel className='font-normal'>
                           Recorded Course
                         </FormLabel>
                       </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
                         <FormControl>
-                          <RadioGroupItem value="LIVE" />
+                          <RadioGroupItem value='LIVE' />
                         </FormControl>
-                        <FormLabel className="font-normal">
+                        <FormLabel className='font-normal'>
                           Live Course
                         </FormLabel>
                       </FormItem>
@@ -143,13 +143,13 @@ const CreatePage = () => {
                 </FormItem>
               )}
             />
-            <div className="flex items-center gap-x-2">
-              <Link href="/">
-                <Button type="button" variant="ghost">
+            <div className='flex items-center gap-x-2'>
+              <Link href='/teacher/courses'>
+                <Button type='button' variant='ghost'>
                   Cancel
                 </Button>
               </Link>
-              <Button type="submit" disabled={!isValid || isSubmitting}>
+              <Button type='submit' disabled={!isValid || isSubmitting}>
                 Continue
               </Button>
             </div>

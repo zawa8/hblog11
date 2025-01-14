@@ -1,7 +1,7 @@
-import { auth } from "@clerk/nextjs";
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { RtcRole, RtcTokenBuilder } from "agora-access-token";
+import { auth } from '@clerk/nextjs';
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { RtcRole, RtcTokenBuilder } from 'agora-access-token';
 
 const AGORA_APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
 const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE!;
@@ -15,18 +15,18 @@ export async function POST(
     const { courseId } = params;
 
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
     const course = await db.course.findUnique({
       where: {
         id: courseId,
-        courseType: "LIVE",
+        courseType: 'LIVE',
       },
     });
 
     if (!course) {
-      return new NextResponse("Course not found", { status: 404 });
+      return new NextResponse('Course not found', { status: 404 });
     }
 
     // Generate channel name if not exists
@@ -70,8 +70,7 @@ export async function POST(
       uid: 0,
     });
   } catch (error) {
-    console.error("[COURSE_ID_LIVE]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse('Internal Error', { status: 500 });
   }
 }
 
@@ -84,7 +83,7 @@ export async function DELETE(
     const { courseId } = params;
 
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
     const course = await db.course.findUnique({
@@ -95,7 +94,7 @@ export async function DELETE(
     });
 
     if (!course) {
-      return new NextResponse("Course not found", { status: 404 });
+      return new NextResponse('Course not found', { status: 404 });
     }
 
     // End live session
@@ -108,10 +107,9 @@ export async function DELETE(
     });
 
     return NextResponse.json({
-      message: "Live session ended",
+      message: 'Live session ended',
     });
   } catch (error) {
-    console.error("[COURSE_ID_LIVE_DELETE]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse('Internal Error', { status: 500 });
   }
 }

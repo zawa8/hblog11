@@ -15,16 +15,16 @@ export const Editor = ({ onChange, value }: EditorProps) => {
     () =>
       dynamic(
         async () => {
-          const { default: RQ } = await import('react-quill');
-          return RQ;
+          const { default: RQ } = await import('react-quill')
+          return RQ
         },
-        { 
+        {
           ssr: false,
           loading: () => <p>Loading editor...</p>
         }
       ),
     []
-  );
+  )
 
   return (
     <div className="bg-white">

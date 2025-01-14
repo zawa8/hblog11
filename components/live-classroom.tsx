@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from "agora-rtc-react";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import toast from "react-hot-toast";
-import MuxPlayer from "@mux/mux-player-react";
+import { useEffect, useState, useCallback } from 'react';
+import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import MuxPlayer from '@mux/mux-player-react';
 
 interface LiveClassroomProps {
   courseId: string;
@@ -34,10 +34,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       const response = await axios.get(`/api/courses/${courseId}/live/recording`);
       setRecordings(response.data);
     } catch (error) {
-      console.error("Failed to fetch recordings:", error);
-      toast.error("Failed to fetch recordings");
+      toast.error('Failed to fetch recordings');
     }
-  }, [courseId]);
+  }, [courseId])
 
   useEffect(() => {
     fetchRecordings();
@@ -45,19 +44,27 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
   useEffect(() => {
     const initAgora = async () => {
-      const agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+      const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
       setClient(agoraClient);
     };
 
     initAgora();
-
-    return () => {
-      // Cleanup
-      localVideoTrack?.close();
-      localAudioTrack?.close();
-      client?.leave();
-    };
   }, []);
+
+  // Separate cleanup effect
+  useEffect(() => {
+    return () => {
+      if (localVideoTrack) {
+        localVideoTrack.close();
+      }
+      if (localAudioTrack) {
+        localAudioTrack.close();
+      }
+      if (client) {
+        client.leave();
+      }
+    };
+  }, [client, localAudioTrack, localVideoTrack]);
 
   const startLiveStream = async () => {
     try {
@@ -81,10 +88,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       setLocalAudioTrack(audioTrack);
       setIsLive(true);
 
-      toast.success("Live stream started!");
+      toast.success('Live stream started!');
     } catch (error) {
-      console.error("Failed to start live stream:", error);
-      toast.error("Failed to start live stream");
+      toast.error('Failed to start live stream');
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +103,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       // Get recording URL from Agora Cloud Recording (you'll need to implement this)
       // For this example, we'll use a placeholder URL
-      const recordingUrl = "https://example.com/recording.mp4";
+      const recordingUrl = 'https://example.com/recording.mp4';
 
       // Unpublish and close tracks
       localVideoTrack?.close();
@@ -117,32 +123,39 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       setLocalAudioTrack(null);
       setIsLive(false);
 
-      toast.success("Live stream ended and recording saved");
+      toast.success('Live stream ended and recording saved');
       fetchRecordings();
     } catch (error) {
-      console.error("Failed to stop live stream:", error);
-      toast.error("Failed to stop live stream");
+      toast.error('Failed to stop live stream');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col space-y-8">
+    <div className='flex flex-col space-y-8'>
       {/* Live Stream Section */}
-      <div className="space-y-4">
-        <div className="relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden">
+      <div className='space-y-4'>
+        <div className='relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden'>
           {localVideoTrack && (
-            <div className="absolute inset-0">
-              <div id="local-video" className="w-full h-full" />
+            <div className='absolute inset-0'>
+              <div 
+                id='local-video' 
+                className='w-full h-full' 
+                ref={(element) => {
+                  if (element) {
+                    localVideoTrack.play(element);
+                  }
+                }}
+              />
             </div>
           )}
           {!localVideoTrack && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-slate-400">
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <p className='text-slate-400'>
                 {isTeacher 
-                  ? "Click Start Live to begin streaming"
-                  : "Waiting for teacher to start the live stream"
+                  ? 'Click Start Live to begin streaming'
+                  : 'Waiting for teacher to start the live stream'
                 }
               </p>
             </div>
@@ -150,13 +163,13 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         </div>
 
         {isTeacher && (
-          <div className="flex items-center gap-x-2">
+          <div className='flex items-center gap-x-2'>
             {!isLive && (
               <Button
                 onClick={startLiveStream}
-                variant="default"
-                size="sm"
-                className="w-full md:w-auto"
+                variant='default'
+                size='sm'
+                className='w-full md:w-auto'
                 disabled={isLoading}
               >
                 Start Live
@@ -165,9 +178,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
             {isLive && (
               <Button
                 onClick={stopLiveStream}
-                variant="destructive"
-                size="sm"
-                className="w-full md:w-auto"
+                variant='destructive'
+                size='sm'
+                className='w-full md:w-auto'
                 disabled={isLoading}
               >
                 End Live
@@ -179,16 +192,16 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       {/* Past Recordings Section */}
       {recordings.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Past Recordings</h3>
-          <div className="grid grid-cols-1 gap-4">
+        <div className='space-y-4'>
+          <h3 className='text-lg font-medium'>Past Recordings</h3>
+          <div className='grid grid-cols-1 gap-4'>
             {recordings.map((recording) => (
-              <div key={recording.id} className="space-y-2">
-                <h4 className="font-medium">{recording.title}</h4>
-                <p className="text-sm text-slate-500">
+              <div key={recording.id} className='space-y-2'>
+                <h4 className='font-medium'>{recording.title}</h4>
+                <p className='text-sm text-slate-500'>
                   {new Date(recording.sessionDate).toLocaleDateString()}
                 </p>
-                <div className="aspect-video">
+                <div className='aspect-video'>
                   <MuxPlayer
                     playbackId={recording.playbackId}
                     metadata={{
@@ -203,4 +216,4 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       )}
     </div>
   );
-};
+}

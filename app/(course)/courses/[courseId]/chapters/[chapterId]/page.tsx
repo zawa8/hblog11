@@ -27,7 +27,7 @@ export default async function ChapterDetails({ params }: { params: { courseId: s
   const isLocked = !chapter.isFree && !purchase
   const completedOnEnd = !!purchase && !userProgress?.isCompleted
   const isTeacher = userId === course.createdById
-  const isLiveCourse = course.courseType === "LIVE"
+const isLiveCourse = course.courseType === 'LIVE'
 
   return (
     <div>
@@ -79,12 +79,12 @@ export default async function ChapterDetails({ params }: { params: { courseId: s
             <>
               <Separator />
               <div className="p-4">
-                {attachments.map((attachment) => (
+                  {attachments.map((attachment: { id: string; name: string; url: string }) => (
                   <a
                     className="flex w-full items-center rounded-md border bg-sky-200 p-3 text-sky-700 hover:underline"
                     key={attachment.id}
                     target="_blank"
-                    href={attachment.url}
+href={attachment.url}
                     rel="noreferrer"
                   >
                     {attachment.name}
