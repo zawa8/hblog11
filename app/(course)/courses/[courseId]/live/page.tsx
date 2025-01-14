@@ -182,7 +182,8 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
                     onClick={() => router.push(`/courses/${params.courseId}/live-classroom`)}
                     className="w-full"
                   >
-                   {course.isLiveActive? 'Join Live Session' : 'Waiting for Live Session'}
+                   {course.isLiveActive 
+                   ? 'Join Live Session' : 'Waiting for Live Session'}
                   </Button>
                 ) : (
                   <Button
@@ -190,8 +191,8 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
                     disabled={
                       isLoading ||
                       !userId ||
-                      (course.maxParticipants?
-                        course.purchases.length >= course.maxParticipants:
+                      (course.maxParticipants 
+                        ? course.purchases.length >= course.maxParticipants :
                         false)
                     }
                     onClick={handleBooking}
