@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Banner } from '@/components/banner'
 import { Preview } from '@/components/preview'
 import { VideoPlayer } from './_components/video-player'
+import { LiveClassroom } from '@/components/live-classroom'
 import { getChapter } from '@/actions/get-chapter'
 import CourseEnrollButton from './_components/course-enroll-button'
 import { Separator } from '@/components/ui/separator'
@@ -25,6 +26,8 @@ export default async function ChapterDetails({ params }: { params: { courseId: s
 
   const isLocked = !chapter.isFree && !purchase
   const completedOnEnd = !!purchase && !userProgress?.isCompleted
+  const isTeacher = userId === course.createdById
+  const isLiveCourse = course.courseType === "LIVE"
 
   return (
     <div>
@@ -33,15 +36,22 @@ export default async function ChapterDetails({ params }: { params: { courseId: s
 
       <div className="mx-auto flex max-w-4xl flex-col pb-20">
         <div className="p-4">
-          <VideoPlayer
-            chapterId={chapter.id}
-            title={chapter.title}
-            courseId={params.courseId}
-            nextChapterId={nextChapter?.id}
-            playbackId={muxData?.playbackId!}
-            isLocked={isLocked}
-            completeOnEnd={completedOnEnd}
-          />
+          {isLiveCourse ? (
+            <LiveClassroom
+              courseId={params.courseId}
+              isTeacher={isTeacher}
+            />
+          ) : (
+            <VideoPlayer
+              chapterId={chapter.id}
+              title={chapter.title}
+              courseId={params.courseId}
+              nextChapterId={nextChapter?.id}
+              playbackId={muxData?.playbackId!}
+              isLocked={isLocked}
+              completeOnEnd={completedOnEnd}
+            />
+          )}
         </div>
 
         <div>

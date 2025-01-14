@@ -13,6 +13,7 @@ import { Form, FormControl, FormDescription, FormField, FormLabel, FormMessage, 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Combobox } from '@/components/ui/combobox'
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -20,6 +21,9 @@ const formSchema = z.object({
   }),
   categoryId: z.string().min(1, {
     message: 'Category is required',
+  }),
+  courseType: z.enum(['RECORDED', 'LIVE'], {
+    required_error: 'Course type is required',
   }),
 })
 
@@ -49,6 +53,7 @@ const CreatePage = () => {
     defaultValues: {
       title: '',
       categoryId: '',
+      courseType: 'RECORDED',
     },
   })
 
@@ -97,6 +102,43 @@ const CreatePage = () => {
                     <Combobox options={categories} {...field} />
                   </FormControl>
                   <FormDescription>Select the category that best fits your course</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="courseType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Course Type</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="RECORDED" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Recorded Course
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="LIVE" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Live Course
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormDescription>
+                    Choose whether this will be a pre-recorded course or a live streaming course
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

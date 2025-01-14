@@ -11,7 +11,20 @@ interface EditorProps {
 }
 
 export const Editor = ({ onChange, value }: EditorProps) => {
-  const ReactQuill = useMemo(() => dynamic(() => import('react-quill'), { ssr: false }), [])
+  const ReactQuill = useMemo(
+    () =>
+      dynamic(
+        async () => {
+          const { default: RQ } = await import('react-quill');
+          return RQ;
+        },
+        { 
+          ssr: false,
+          loading: () => <p>Loading editor...</p>
+        }
+      ),
+    []
+  );
 
   return (
     <div className="bg-white">

@@ -1,4 +1,3 @@
-import { Attachment, Chapter } from '@prisma/client'
 import { db } from '@/lib/db'
 
 type GetChapterArgs = {
@@ -10,7 +9,17 @@ type GetChapterArgs = {
 export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs) {
   try {
     const purchase = await db.purchase.findUnique({ where: { userId_courseId: { userId, courseId } } })
-    const course = await db.course.findUnique({ where: { id: courseId, isPublished: true }, select: { price: true } })
+    const course = await db.course.findUnique({ 
+      where: { id: courseId, isPublished: true }, 
+      select: { 
+        price: true,
+        courseType: true,
+        createdById: true,
+        isLiveActive: true,
+        agoraChannelName: true,
+        agoraToken: true
+      } 
+    })
     const chapter = await db.chapter.findUnique({ where: { id: chapterId, isPublished: true } })
 
     if (!chapter || !course) {
@@ -18,8 +27,8 @@ export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs
     }
 
     let muxData = null
-    let attachments: Attachment[] = []
-    let nextChapter: Chapter | null = null
+    let attachments = []
+    let nextChapter = null
 
     if (purchase) {
       attachments = await db.attachment.findMany({ where: { courseId } })

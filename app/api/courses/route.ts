@@ -6,7 +6,7 @@ import { isTeacher } from '@/lib/teacher'
 export async function POST(request: NextRequest) {
   try {
     const { userId } = auth()
-    const { title, categoryId } = await request.json()
+    const { title, categoryId, courseType } = await request.json()
 
     if (!userId || !isTeacher(userId)) {
       return new NextResponse('Unauthorized', { status: 401 })
@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
         title,
         categoryId,
         createdById: userId,
+        courseType,
       },
     })
 
