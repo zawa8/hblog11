@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import Mux from '@mux/mux-node'
+import { db } from '@/lib/db'
 
 const { Video } = new Mux(
   process.env.MUX_TOKEN_ID!,
@@ -51,7 +51,7 @@ export async function POST(
 
     return NextResponse.json(recording)
   } catch (error) {
-    console.error('[COURSE_ID_LIVE_RECORDING]', error)
+    // console.error('[COURSE_ID_LIVE_RECORDING]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }
@@ -74,7 +74,7 @@ export async function GET(
 
     return NextResponse.json(recordings)
   } catch (error) {
-    console.error('[COURSE_ID_LIVE_RECORDING_GET]', error)
+    // console.error('[COURSE_ID_LIVE_RECORDING_GET]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }

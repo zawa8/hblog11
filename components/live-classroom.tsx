@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useEffect, useState, useCallback } from 'react';
-import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
-import axios from 'axios';
-import MuxPlayer from '@mux/mux-player-react';
-import { Button } from '@/components/ui/button';
-import toast from 'react-hot-toast';
+import { useEffect, useState, useCallback } from 'react'
+import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng'
+import axios from 'axios'
+import MuxPlayer from '@mux/mux-player-react'
+import { Button } from '@/components/ui/button'
+import toast from 'react-hot-toast'
 
 interface LiveClassroomProps {
   courseId: string;
@@ -20,114 +20,114 @@ interface Recording {
 }
 
 export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
-  const [client, setClient] = useState<IAgoraRTCClient | null>(null);
-  const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
-  const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null);
-  const [isLive, setIsLive] = useState(false);
-  const [recordings, setRecordings] = useState<Recording[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [client, setClient] = useState<IAgoraRTCClient | null>(null)
+  const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
+  const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
+  const [isLive, setIsLive] = useState(false)
+  const [recordings, setRecordings] = useState<Recording[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const fetchRecordings = useCallback(async () => {
     try {
-      const response = await axios.get(`/api/courses/${courseId}/live/recording`);
-      setRecordings(response.data);
+      const response = await axios.get(`/api/courses/${courseId}/live/recording`)
+      setRecordings(response.data)
     } catch (error) {
-      toast.error('Failed to fetch recordings');
+      toast.error('Failed to fetch recordings')
     }
-  }, [courseId]);
+  }, [courseId])
 
   useEffect(() => {
-    fetchRecordings();
-  }, [fetchRecordings]);
+    fetchRecordings()
+  }, [fetchRecordings])
 
   useEffect(() => {
     const initAgora = async () => {
-      const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-      setClient(agoraClient);
+      const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
+      setClient(agoraClient)
     };
 
-    initAgora();
-  }, []);
+    initAgora()
+  }, [])
 
   // Separate cleanup effect
   useEffect(() => {
     return () => {
       if (localVideoTrack) {
-        localVideoTrack.close();
+        localVideoTrack.close()
       }
       if (localAudioTrack) {
-        localAudioTrack.close();
+        localAudioTrack.close()
       }
       if (client) {
-        client.leave();
+        client.leave()
       }
-    };
-  }, [client, localAudioTrack, localVideoTrack]);
+    }
+  }, [client, localAudioTrack, localVideoTrack])
 
   const startLiveStream = async () => {
     try {
-      setIsLoading(true);
+      setIsLoading(true)
       // Get Agora token and channel name from backend
-      const response = await axios.post(`/api/courses/${courseId}/live`);
-      const { token, channelName, appId } = response.data;
+      const response = await axios.post(`/api/courses/${courseId}/live`)
+      const { token, channelName, appId } = response.data
 
-      if (!client) return;
+      if (!client) return
 
       // Join channel
-      await client.join(appId, channelName, token);
+      await client.join(appId, channelName, token)
 
       // Create and publish tracks
-      const videoTrack = await AgoraRTC.createCameraVideoTrack();
-      const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      const videoTrack = await AgoraRTC.createCameraVideoTrack()
+      const audioTrack = await AgoraRTC.createMicrophoneAudioTrack()
 
-      await client.publish([videoTrack, audioTrack]);
+      await client.publish([videoTrack, audioTrack])
 
-      setLocalVideoTrack(videoTrack);
-      setLocalAudioTrack(audioTrack);
-      setIsLive(true);
+      setLocalVideoTrack(videoTrack)
+      setLocalAudioTrack(audioTrack)
+      setIsLive(true)
 
-      toast.success('Live stream started!');
+      toast.success('Live stream started!')
     } catch (error) {
-      toast.error('Failed to start live stream');
+      toast.error('Failed to start live stream')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   };
 
   const stopLiveStream = async () => {
     try {
-      setIsLoading(true);
-      if (!client) return;
+      setIsLoading(true)
+      if (!client) return
 
       // Get recording URL from Agora Cloud Recording (you'll need to implement this)
       // For this example, we'll use a placeholder URL
-      const recordingUrl = 'https://example.com/recording.mp4';
+      const recordingUrl = 'https://example.com/recording.mp4'
 
       // Unpublish and close tracks
-      localVideoTrack?.close();
-      localAudioTrack?.close();
-      await client.leave();
+      localVideoTrack?.close()
+      localAudioTrack?.close()
+      await client.leave()
 
       // Update backend
-      await axios.delete(`/api/courses/${courseId}/live`);
+      await axios.delete(`/api/courses/${courseId}/live`)
 
       // Store recording in Mux
       await axios.post(`/api/courses/${courseId}/live/recording`, {
         recordingUrl,
         title: `Live Session - ${new Date().toLocaleDateString()}`,
-      });
+      })
 
-      setLocalVideoTrack(null);
-      setLocalAudioTrack(null);
-      setIsLive(false);
+      setLocalVideoTrack(null)
+      setLocalAudioTrack(null)
+      setIsLive(false)
 
-      toast.success('Live stream ended and recording saved');
-      fetchRecordings();
+      toast.success('Live stream ended and recording saved')
+      fetchRecordings()
     } catch (error) {
-      toast.error('Failed to stop live stream');
+      toast.error('Failed to stop live stream')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className='flex flex-col space-y-8'>
@@ -141,7 +141,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
                 className='w-full h-full'
                 ref={(element) => {
                   if (element) {
-                    localVideoTrack.play(element);
+                    localVideoTrack.play(element)
                   }
                 }}
               />
@@ -212,5 +212,5 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         </div>
       )}
     </div>
-  );
+  )
 }

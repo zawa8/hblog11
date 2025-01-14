@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import { RtcRole, RtcTokenBuilder } from 'agora-access-token'
+import { db } from '@/lib/db'
 
 const AGORA_APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID!
 const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE!
