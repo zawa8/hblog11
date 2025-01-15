@@ -72,7 +72,6 @@ export async function PUT(
     const { userId } = auth()
     const { schedules } = await req.json() as { schedules: ScheduleInput[] }
 
-
     if (!userId || !isTeacher(userId)) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
