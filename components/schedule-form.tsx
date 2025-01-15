@@ -20,11 +20,12 @@ interface ScheduleFormProps {
 export const ScheduleForm = ({
   initialSchedule = [],
   onScheduleChange,
+  isSaving,
 }: ScheduleFormProps) => {
   const [schedule, setSchedule] = useState<ScheduleEntry[]>(initialSchedule)
 
   const addEntry = () => {
-    const newSchedule = [...schedule, { time: '', topic: '', speaker: '' }]
+    const newSchedule = [...schedule, { time: '', topic: '', speaker: '', isSaving: false }]
     setSchedule(newSchedule)
     onScheduleChange(newSchedule)
   }
@@ -56,6 +57,7 @@ export const ScheduleForm = ({
               value={entry.time}
               onChange={(e) => updateEntry(index, 'time', e.target.value)}
               placeholder="Time"
+              disabled={isSaving}
             />
           </div>
           <div className="flex-[2]">
@@ -63,6 +65,7 @@ export const ScheduleForm = ({
               value={entry.topic}
               onChange={(e) => updateEntry(index, 'topic', e.target.value)}
               placeholder="Topic"
+              disabled={isSaving}
             />
           </div>
           <div className="flex-[2]">
@@ -70,12 +73,14 @@ export const ScheduleForm = ({
               value={entry.speaker}
               onChange={(e) => updateEntry(index, 'speaker', e.target.value)}
               placeholder="Speaker"
+              disabled={isSaving}
             />
           </div>
           <Button
             type="button"
             variant="ghost"
             onClick={() => removeEntry(index)}
+            disabled={isSaving}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -86,6 +91,7 @@ export const ScheduleForm = ({
         variant="outline"
         onClick={addEntry}
         className="mt-4"
+        disabled={isSaving}
       >
         Add Schedule Entry
       </Button>

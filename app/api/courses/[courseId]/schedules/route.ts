@@ -70,12 +70,12 @@ export async function PUT(
 ) {
   try {
     const { userId } = auth()
-    const { schedules } = await req.json()
+    const { schedules } = await req.json() as { schedules: ScheduleInput[] }
+
 
     if (!userId || !isTeacher(userId)) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
-
     if (!Array.isArray(schedules)) {
       return new NextResponse('Invalid schedules data', { status: 400 })
     }
@@ -134,7 +134,7 @@ export async function PUT(
 
     return NextResponse.json(newSchedules)
   } catch (error) {
-    // console.error('[SCHEDULES_UPDATE]', error)
+    console.error('[SCHEDULES_UPDATE]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }
