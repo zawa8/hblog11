@@ -104,30 +104,16 @@ export async function PUT(
     // Create new schedules
     const newSchedules = await Promise.all(
       schedules.map(async (schedule: ScheduleInput, index: number) => {
-        await db.$executeRaw`
-          INSERT INTO "Schedule" ("id", "courseId", "time", "topic", "speaker", "position", "createdAt", "updatedAt")
-          VALUES (
-            gen_random_uuid(),
-            ${params.courseId}::uuid,
-            ${schedule.time}::text,
-            ${schedule.topic}::text,
-            ${schedule.speaker}::text,
-            ${index}::integer,
-            NOW(),
-            NOW()
-          )
-        `
-
-        // Fetch the newly created schedule
-        const [newSchedule] = await db.$queryRaw<Schedule[]>`
-          SELECT * FROM "Schedule"
-          WHERE "courseId" = ${params.courseId}
-          AND "position" = ${index}
-          ORDER BY "createdAt" DESC
-          LIMIT 1
-        `
-
-        return newSchedule
+        const scheduleId = await db.schedule.create({
+          data: {
+            courseId: params.courseId,
+            time: schedule.time,
+            topic: schedule.topic,
+            speaker: schedule.speaker,
+            position: index,
+          },
+        });
+        return scheduleId;
       })
     )
 
