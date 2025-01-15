@@ -4,13 +4,18 @@ const prisma = new PrismaClient()
 
 async function main() {
   const categories = [
-    'Music',
-    'Photography',
-    'Fitness',
-    'Accounting',
-    'Computer Science',
-    'Filming',
-    'Engineering',
+    'Anaesthesiologists',
+    'Dental',
+    'Emergency Physicians',
+    'Obstetricians & Gynaecologists',
+    'Ophthalmology',
+    'Otorhinolaryngologists',
+    'Paediatrics',
+    'Pathologists',
+    'Physicians',
+    'Health Medicine',
+    'Radiology',
+    'Surgeons',
   ]
 
   for (const name of categories) {
