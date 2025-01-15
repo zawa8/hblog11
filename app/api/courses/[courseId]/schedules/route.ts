@@ -112,8 +112,8 @@ export async function PUT(
             speaker: schedule.speaker,
             position: index,
           },
-        });
-        return scheduleId;
+        })
+        return scheduleId
       })
     )
 
