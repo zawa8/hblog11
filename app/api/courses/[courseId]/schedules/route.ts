@@ -96,35 +96,43 @@ export async function PUT(
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    const updatedSchedules = await Promise.all(
-      schedules.map(async (schedule, index) => {
-        // Update existing schedule or create a new one
-        const updatedSchedule = await db.schedule.upsert({
-          where: {
-            courseId_position: {
-              courseId: params.courseId,
-              position: index,
-            },
-          },
-          update: {
-            time: schedule.time,
-            topic: schedule.topic,
-            speaker: schedule.speaker,
-          },
-          create: {
-            time: schedule.time,
-            topic: schedule.topic,
-            speaker: schedule.speaker,
-            position: index,
-            courseId: params.courseId,
-          },
-        })
+    // Delete existing schedules
+    await db.$executeRaw`
+      DELETE FROM "Schedule"
+      WHERE "courseId" = ${params.courseId}
+    `
 
-        return updatedSchedule
+    // Create new schedules
+    const newSchedules = await Promise.all(
+      schedules.map(async (schedule: ScheduleInput, index: number) => {
+        await db.$executeRaw`
+          INSERT INTO "Schedule" ("id", "courseId", "time", "topic", "speaker", "position", "createdAt", "updatedAt")
+          VALUES (
+            gen_random_uuid(),
+            ${params.courseId}::uuid,
+            ${schedule.time}::text,
+            ${schedule.topic}::text,
+            ${schedule.speaker}::text,
+            ${index}::integer,
+            NOW(),
+            NOW()
+          )
+        `
+
+        // Fetch the newly created schedule
+        const [newSchedule] = await db.$queryRaw<Schedule[]>`
+          SELECT * FROM "Schedule"
+          WHERE "courseId" = ${params.courseId}
+          AND "position" = ${index}
+          ORDER BY "createdAt" DESC
+          LIMIT 1
+        `
+
+        return newSchedule
       })
     )
 
-    return NextResponse.json(updatedSchedules)
+    return NextResponse.json(newSchedules)
   } catch (error) {
     // console.error('[SCHEDULES_UPDATE]', error)
     return new NextResponse('Internal Error', { status: 500 })

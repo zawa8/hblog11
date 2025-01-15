@@ -54,9 +54,8 @@ model Schedule {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([courseId, position])
+  @@index([courseId])
 }
-
 
 model Category {
   id      String   @id @default(cuid())
