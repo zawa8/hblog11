@@ -9,8 +9,6 @@ import CourseEnrollButton from './_components/course-enroll-button'
 import { Separator } from '@/components/ui/separator'
 import { CourseProgressButton } from './_components/course-progress-button'
 import CourseSidebar from '../../_components/course-sidebar'
-
-
 export default async function ChapterDetails({ params }: { params: { courseId: string; chapterId: string } }) {
   const { userId } = auth()
   if (!userId) {
