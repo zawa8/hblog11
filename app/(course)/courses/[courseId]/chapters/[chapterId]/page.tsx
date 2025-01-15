@@ -8,6 +8,8 @@ import { getChapter } from '@/actions/get-chapter'
 import CourseEnrollButton from './_components/course-enroll-button'
 import { Separator } from '@/components/ui/separator'
 import { CourseProgressButton } from './_components/course-progress-button'
+import CourseSidebar from '../../_components/course-sidebar'
+
 
 export default async function ChapterDetails({ params }: { params: { courseId: string; chapterId: string } }) {
   const { userId } = auth()
@@ -15,7 +17,7 @@ export default async function ChapterDetails({ params }: { params: { courseId: s
     return redirect('/')
   }
 
-  const { chapter, course, muxData, attachments, nextChapter, userProgress, purchase } = await getChapter({
+  const { chapter, course, muxData, attachments, nextChapter, userProgress, purchase, progressCount } = await getChapter({
     userId,
     ...params,
   })
@@ -30,11 +32,15 @@ export default async function ChapterDetails({ params }: { params: { courseId: s
 const isLiveCourse = course.courseType === 'LIVE'
 
   return (
-    <div>
-      {userProgress?.isCompleted ? <Banner label="You already completed this chapter" variant="success" /> : null}
-      {isLocked ? <Banner label="You need to purchase this course to watch this chapter" /> : null}
+    <div className="flex flex-row-reverse">
+      <div className="hidden lg:block">
+        <CourseSidebar course={course} progressCount={progressCount} />
+      </div>
+      <div className="flex-1">
+        {userProgress?.isCompleted ? <Banner label="You already completed this chapter" variant="success" /> : null}
+        {isLocked ? <Banner label="You need to purchase this course to watch this chapter" /> : null}
 
-      <div className="mx-auto flex max-w-4xl flex-col pb-20">
+        <div className="mx-auto flex max-w-4xl flex-col pb-20">
         <div className="p-4">
           {isLiveCourse ? (
             <LiveClassroom
@@ -93,6 +99,7 @@ href={attachment.url}
               </div>
             </>
           ) : null}
+        </div>
         </div>
       </div>
     </div>

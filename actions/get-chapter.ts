@@ -10,16 +10,18 @@ type GetChapterArgs = {
 export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs) {
   try {
     const purchase = await db.purchase.findUnique({ where: { userId_courseId: { userId, courseId } } })
-    const course = await db.course.findUnique({ 
-      where: { id: courseId, isPublished: true }, 
-      select: { 
-        price: true,
-        courseType: true,
-        createdById: true,
-        isLiveActive: true,
-        agoraChannelName: true,
-        agoraToken: true
-      } 
+    const course = await db.course.findUnique({
+      where: {
+        id: courseId,
+        isPublished: true,
+      },
+      include: {
+        chapters: {
+          include: {
+            userProgress: true,
+          },
+        },
+      },
     })
     const chapter = await db.chapter.findUnique({ where: { id: chapterId, isPublished: true } })
 
@@ -43,8 +45,17 @@ export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs
         orderBy: { position: 'asc' },
       })
     }
-
     const userProgress = await db.userProgress.findUnique({ where: { userId_chapterId: { userId, chapterId } } })
+
+    const progressCount = await db.userProgress.count({
+      where: {
+        userId,
+        chapter: {
+          courseId: courseId,
+        },
+        isCompleted: true,
+      },
+    })
 
     return {
       chapter,
@@ -54,16 +65,19 @@ export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs
       nextChapter,
       userProgress,
       purchase,
+      progressCount,
     }
-  } catch {
+  } catch (error) {
+    console.error(error)
     return {
       chapter: null,
       course: null,
       muxData: null,
-      attachments: null,
+      attachments: [],
       nextChapter: null,
       userProgress: null,
       purchase: null,
+      progressCount: 0,
     }
   }
 }
