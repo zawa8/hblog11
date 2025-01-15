@@ -80,7 +80,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
               </div>
             )}
             <div className="bg-slate-200 px-2 py-1 rounded">
-              MYR {typedCourse.price ? typedCourse.price : "Free"}
+              MYR {typedCourse.price ? typedCourse.price : 'Free'}
             </div>
           </div>
           <p className="text-slate-700 mb-4">
