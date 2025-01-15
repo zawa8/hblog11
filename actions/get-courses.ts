@@ -21,7 +21,7 @@ export async function getCourses({
 }: GetCoursesArgs): Promise<CourseWithProgressAndCategory[]> {
   try {
     const courses = await db.course.findMany({
-      where: { isPublished: true, title: { contains: title }, categoryId },
+      where: { isPublished: true, title: { contains: title, mode: 'insensitive' }, categoryId },
       include: {
         category: true,
         chapters: { where: { isPublished: true }, select: { id: true } },
