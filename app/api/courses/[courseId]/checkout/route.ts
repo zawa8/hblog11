@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: { courseId: s
       {
         quantity: 1,
         price_data: {
-          currency: 'USD',
+          currency: 'MYR',
           product_data: {
             name: course.title,
             description: course.description!,

@@ -128,7 +128,7 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
               {course.category?.name}
             </div>
             <div className="bg-slate-200 px-2 py-1 rounded">
-              ${course.price}
+              MYR{course.price}
             </div>
             {course.nextLiveDate && (
               <div className="bg-slate-200 px-2 py-1 rounded">
