@@ -12,16 +12,25 @@ type GetCoursesArgs = {
   userId: string
   title?: string
   categoryId?: string
+  type?: string
 }
 
 export async function getCourses({
   userId,
   title,
   categoryId,
+  type,
 }: GetCoursesArgs): Promise<CourseWithProgressAndCategory[]> {
   try {
     const courses = await db.course.findMany({
-      where: { isPublished: true, title: { contains: title, mode: 'insensitive' }, categoryId },
+      where: {
+        isPublished: true,
+        title: { contains: title, mode: 'insensitive' },
+        categoryId,
+        ...(type && {
+          courseType: type === 'live' ? 'LIVE' : 'RECORDED'
+        })
+      },
       include: {
         category: true,
         chapters: { where: { isPublished: true }, select: { id: true } },

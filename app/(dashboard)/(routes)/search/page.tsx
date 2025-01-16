@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 
 import { db } from '@/lib/db'
 import { Categories } from './_component/category'
+import { CourseType } from './_component/course-type'
 import { SearchInput } from '@/components/search-input'
 import { getCourses } from '@/actions/get-courses'
 import CoursesList from '@/components/course-list'
@@ -11,6 +12,7 @@ interface SearchPageProps {
   searchParams: {
     title: string
     categoryId: string
+    type: string
   }
 }
 
@@ -38,7 +40,10 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
         <SearchInput />
       </div>
       <div className="space-y-4 p-6">
-        <Categories items={categories} />
+        <div className="flex flex-col gap-y-2 md:flex-row md:gap-x-2">
+          <Categories items={categories} />
+          <CourseType />
+        </div>
         <CoursesList items={courses} />
       </div>
     </>
