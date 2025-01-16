@@ -1,9 +1,8 @@
-import Image from "next/image";
-import { auth, currentUser } from "@clerk/nextjs";
-
+import Image from 'next/image'
+import { currentUser } from '@clerk/nextjs'
 export const WelcomeBanner = async () => {
-  const user = await currentUser();
-  const fullName = user ? `${user.firstName} ${user.lastName}` : "Student";
+  const user = await currentUser()
+  const fullName = user ? `${user.firstName} ${user.lastName}` : 'Student'
 
   return (
     <div className="relative w-full h-[200px] bg-violet-50 rounded-xl p-8 flex items-center gap-x-8 overflow-hidden">
@@ -17,7 +16,7 @@ export const WelcomeBanner = async () => {
       </div>
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">
-          Welcome Back,{" "}
+          Welcome Back,{' '}
           <span className="text-violet-600">
             {fullName}
           </span>
@@ -30,5 +29,5 @@ export const WelcomeBanner = async () => {
         </p>
       </div>
     </div>
-  );
-};
+  )
+}
