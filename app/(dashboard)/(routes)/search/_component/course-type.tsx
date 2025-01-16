@@ -27,7 +27,6 @@ const courseTypes = [
 export const CourseType = () => {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState('')
-  
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -108,7 +107,7 @@ export const CourseType = () => {
               >
                 <Check
                   className={cn(
-                    "mr-2 h-4 w-4",
+                    'mr-2 h-4 w-4',
                     value === type.id ? 'opacity-100' : 'opacity-0'
                   )}
                 />
