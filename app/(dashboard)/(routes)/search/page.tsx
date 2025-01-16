@@ -43,6 +43,9 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
         <div className="flex flex-col gap-y-2 md:flex-row md:gap-x-2">
           <Categories items={categories} />
           <CourseType />
+          <div className="hidden md:block">
+            <SearchInput />
+          </div>
         </div>
         <CoursesList items={courses} />
       </div>
