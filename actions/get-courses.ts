@@ -5,6 +5,7 @@ import { getProgress } from './get-progress'
 export type CourseWithProgressAndCategory = Course & {
   category: Category | null
   chapters: { id: string }[]
+  schedules: { id: string }[]
   progress: number | null
 }
 
@@ -34,6 +35,7 @@ export async function getCourses({
       include: {
         category: true,
         chapters: { where: { isPublished: true }, select: { id: true } },
+        schedules: { select: { id: true } },
         purchases: { where: { userId } },
       },
       orderBy: {
