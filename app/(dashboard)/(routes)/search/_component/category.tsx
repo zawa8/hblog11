@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import qs from 'query-string'
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown } from 'lucide-react'
 import { Category } from '@prisma/client'
 import { MdLocalHospital, MdLocalPharmacy } from 'react-icons/md'
 import { GiTooth, GiHospitalCross, GiBabyFace, GiScalpel } from 'react-icons/gi'
@@ -12,20 +12,20 @@ import { BsEye } from 'react-icons/bs'
 import { IconType } from 'react-icons'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command"
+} from '@/components/ui/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from '@/components/ui/popover'
 
 interface CategoriesProps {
   items: Category[]
@@ -48,8 +48,7 @@ const iconMap: Record<Category['name'], IconType> = {
 
 export const Categories = ({ items }: CategoriesProps) => {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
-  
+  const [value, setValue] = React.useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -90,11 +89,11 @@ export const Categories = ({ items }: CategoriesProps) => {
         >
           {selectedItem ? (
             <div className="flex items-center gap-2">
-              {selectedItem && React.createElement(iconMap[selectedItem.name], { className: "h-4 w-4" })}
+              {selectedItem && React.createElement(iconMap[selectedItem.name], { className: 'h-4 w-4' })}
               <span>{selectedItem.name}</span>
             </div>
           ) : (
-            "Select Fraternity..."
+            'Select Fraternity...'
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -106,13 +105,13 @@ export const Categories = ({ items }: CategoriesProps) => {
           <CommandGroup>
             <CommandItem
               value=""
-              onSelect={() => handleSelect("")}
+              onSelect={() => handleSelect('')}
               className="cursor-pointer"
             >
               <Check
                 className={cn(
-                  "mr-2 h-4 w-4",
-                  !value ? "opacity-100" : "opacity-0"
+                  'mr-2 h-4 w-4',
+                  !value ? 'opacity-100' : 'opacity-0'
                 )}
               />
               All Fraternity
@@ -126,12 +125,12 @@ export const Categories = ({ items }: CategoriesProps) => {
               >
                 <Check
                   className={cn(
-                    "mr-2 h-4 w-4",
-                    value === item.id ? "opacity-100" : "opacity-0"
+                    'mr-2 h-4 w-4',
+                    value === item.id ? 'opacity-100' : 'opacity-0'
                   )}
                 />
                 <div className="flex items-center gap-2">
-                  {React.createElement(iconMap[item.name], { className: "h-4 w-4" })}
+                  {React.createElement(iconMap[item.name], { className: 'h-4 w-4' })}
                   {item.name}
                 </div>
               </CommandItem>
