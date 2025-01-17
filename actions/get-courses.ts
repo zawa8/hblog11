@@ -1,12 +1,16 @@
-import { Category, Course } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getProgress } from './get-progress'
+import { clerkClient } from '@clerk/nextjs'
 
-export type CourseWithProgressAndCategory = Course & {
-  category: Category | null
+export type CourseWithProgressAndCategory = Awaited<ReturnType<typeof db.course.findFirst>> & {
+  category: { id: string; name: string } | null
   chapters: { id: string }[]
   schedules: { id: string; scheduledDate: Date }[]
   progress: number | null
+  teacher: {
+    name: string
+    image: string | null
+  }
 }
 
 type GetCoursesArgs = {
@@ -32,9 +36,22 @@ export async function getCourses({
           courseType: type === 'live' ? 'LIVE' : 'RECORDED'
         })
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        price: true,
+        isPublished: true,
+        courseType: true,
+        createdById: true,
+        createdAt: true,
+        updatedAt: true,
         category: true,
-        chapters: { where: { isPublished: true }, select: { id: true } },
+        chapters: { 
+          where: { isPublished: true }, 
+          select: { id: true } 
+        },
         schedules: { 
           select: { 
             id: true,
@@ -49,7 +66,10 @@ export async function getCourses({
             }
           }
         },
-        purchases: { where: { userId } },
+        purchases: { 
+          where: { userId },
+          select: { id: true }
+        }
       },
       orderBy: {
         createdAt: 'desc',
@@ -57,21 +77,30 @@ export async function getCourses({
     })
 
     const coursesWithProgress: CourseWithProgressAndCategory[] = await Promise.all(
-      courses.map(async (course) => {
-        if (course.purchases.length === 0) {
-          return { ...course, progress: null }
+      courses.map(async (course: typeof courses[0]) => {
+        const progressPercentage = course.purchases.length === 0 ? null : await getProgress(userId, course.id);
+        let teacher;
+        try {
+          teacher = await clerkClient.users.getUser(course.createdById);
+        } catch (error) {
+          console.error(`Error fetching teacher for course ${course.id}:`, error);
+          teacher = null;
         }
 
-        const progressPercentage = await getProgress(userId, course.id)
         return {
           ...course,
           progress: progressPercentage,
+          teacher: {
+            name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
+            image: teacher?.imageUrl || '/placeholder-avatar.png'
+          }
         }
       }),
     )
 
     return coursesWithProgress
-  } catch {
+  } catch (error) {
+    console.error('Error fetching courses:', error)
     return []
   }
 }

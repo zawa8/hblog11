@@ -17,7 +17,7 @@ export default function CoursesList({ items }: CoursesListProps) {
             imageUrl={course.imageUrl!}
             price={course.price!}
             progress={course.progress}
-            chaptersLength={course.chapters.length}
+            teacher={course.teacher}
             category={course?.category?.name ?? ''}
             courseType={course.courseType}
             schedules={course.schedules}

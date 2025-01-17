@@ -14,12 +14,15 @@ type CourseCardProps = {
   id: string
   title: string
   imageUrl: string
-  chaptersLength: number
   price: number
   progress: number | null
   category: string
   courseType: 'RECORDED' | 'LIVE'
   schedules?: { scheduledDate: string | Date }[]
+  teacher: {
+    name: string
+    image: string | null
+  }
 }
 
 const CountdownTimer = ({ targetDate }: { targetDate: string | Date }) => {
@@ -61,7 +64,7 @@ export default function CourseCard({
   id,
   title,
   imageUrl,
-  chaptersLength,
+  teacher,
   price,
   progress,
   category,
@@ -86,13 +89,18 @@ export default function CourseCard({
               {courseType}
             </Badge>
           </div>
-          <div className="my-3 flex items-center gap-x-1 text-sm md:text-xs">
-            <div className="flex items-center gap-x-1 text-slate-500">
-              <IconBadge size="sm" icon={BookOpenIcon} />
-              <span>
-                {chaptersLength} {chaptersLength === 1 ? 'Chapter' : 'Chapters'}
-              </span>
+          <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
+            <div className="relative h-6 w-6 rounded-full overflow-hidden">
+              <Image 
+                fill
+                src={teacher.image || '/placeholder-avatar.png'}
+                alt={teacher.name}
+                className="object-cover"
+              />
             </div>
+            <p className="text-slate-500">
+              {teacher.name}
+            </p>
           </div>
 
           {courseType === 'LIVE' && schedules && schedules.length > 0 ? (

@@ -7,52 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum CourseType {
-  RECORDED
-  LIVE
-}
-
 model Course {
-  id          String     @id @default(cuid())
-  createdById String
-  title       String
-  description String?
-  imageUrl    String?
-  price       Float?
-  isPublished Boolean    @default(false)
-  courseType  CourseType @default(RECORDED)
-  
-  // Live streaming configuration
-  agoraChannelName String? // Used for live sessions
-  agoraToken      String? // Token for live streaming
-  isLiveActive    Boolean @default(false)
-  nextLiveDate    DateTime?
-  maxParticipants Int?    // Maximum number of participants allowed in live session
-
-  attachments  Attachment[]
-  category     Category?    @relation(fields: [categoryId], references: [id])
-  categoryId   String?
-  chapters     Chapter[]
-  schedules    Schedule[]   // New relation for live course schedules
-  purchases    Purchase[]
-  recordings   LiveSessionRecording[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String                 @id @default(cuid())
+  createdById      String
+  title            String
+  description      String?
+  imageUrl         String?
+  price            Float?
+  isPublished      Boolean                @default(false)
+  categoryId       String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  agoraChannelName String?
+  agoraToken       String?
+  courseType       CourseType             @default(RECORDED)
+  isLiveActive     Boolean                @default(false)
+  nextLiveDate     DateTime?
+  maxParticipants  Int?
+  attachments      Attachment[]
+  chapters         Chapter[]
+  category         Category?              @relation(fields: [categoryId], references: [id])
+  recordings       LiveSessionRecording[]
+  purchases        Purchase[]
+  schedules        Schedule[]
 }
 
 model Schedule {
   id            String   @id @default(cuid())
-  scheduledDate DateTime // Date and time of the session
   topic         String
   speaker       String
-  position      Int      // For ordering schedule entries
-  
-  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  position      Int
   courseId      String
-
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  scheduledDate DateTime
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
 }
@@ -64,103 +53,93 @@ model Category {
 }
 
 model Attachment {
-  id String @id @default(cuid())
-
-  name String
-  url  String
-
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId String
-
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  courseId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
 }
 
 model Chapter {
-  id          String  @id @default(cuid())
-  title       String
-  description String?
-  videoUrl    String?
-  position    Int
-  isPublished Boolean @default(false)
-  isFree      Boolean @default(false)
-  
-  // Schedule related fields
-  startTime   DateTime?  // Start time of the session
-  endTime     DateTime?  // End time of the session
-  topic       String?    // Topic of the session
-  speaker     String?    // Speaker for the session
-
-  course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id           String         @id @default(cuid())
+  title        String
+  description  String?
+  videoUrl     String?
+  isPublished  Boolean        @default(false)
+  isFree       Boolean        @default(false)
   courseId     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  position     Int
+  endTime      DateTime?
+  speaker      String?
+  startTime    DateTime?
+  topic        String?
+  course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
   muxData      MuxData?
   userProgress UserProgress[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model MuxData {
   id         String  @id @default(cuid())
   assetId    String
   playbackId String?
-
-  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  chapterId String  @unique
+  chapterId  String  @unique
+  chapter    Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 }
 
 model LiveSessionRecording {
   id          String   @id @default(cuid())
   courseId    String
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   sessionDate DateTime
   muxAssetId  String
   playbackId  String?
   title       String
-  duration    Int?     // Duration in seconds
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  duration    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
 }
 
 model UserProgress {
-  id     String @id @default(cuid())
-  userId String
-
-  chapter     Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  userId      String
   chapterId   String
-  isCompleted Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@unique([userId, chapterId])
 }
 
 model Purchase {
-  id       String  @id @default(cuid())
-  userId   String
-  isBooked Boolean @default(false)
-
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId String
-
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isBooked  Boolean  @default(false)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
 }
 
 model StripeCustomer {
-  id String @id @default(cuid())
+  id               String   @id @default(cuid())
+  userid           String   @unique
+  stripeCustomerId String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
 
-  userid           String @unique
-  stripeCustomerId String @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum CourseType {
+  RECORDED
+  LIVE
 }

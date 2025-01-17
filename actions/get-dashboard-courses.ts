@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { getProgress } from './get-progress'
 import { CourseWithProgressAndCategory } from './get-courses'
+import { clerkClient } from '@clerk/nextjs'
 
 type Schedule = {
   id: string
@@ -19,6 +20,7 @@ type PurchasedCourse = {
     category: { id: string; name: string } | null
     chapters: { id: string }[]
     schedules: Schedule[]
+    createdById: string
     createdAt: Date
     updatedAt: Date
   }
@@ -36,7 +38,17 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
       where: { userId },
       select: {
         course: {
-          include: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            imageUrl: true,
+            price: true,
+            isPublished: true,
+            courseType: true,
+            createdById: true,
+            createdAt: true,
+            updatedAt: true,
             category: true,
             chapters: {
               where: { isPublished: true }
@@ -47,17 +59,30 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
       }
     })
 
-    const courses = purchasedCourses.map((purchase: PurchasedCourse) => {
-      const course = purchase.course;
-      return {
-        ...course,
-        schedules: course.schedules
-          .filter((schedule: Schedule) => new Date(schedule.scheduledDate) > new Date())
-          .sort((a: Schedule, b: Schedule) => 
-            new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
-          )
-      };
-    }) as CourseWithProgressAndCategory[]
+    const courses = await Promise.all(
+      purchasedCourses.map(async (purchase: PurchasedCourse) => {
+        const course = purchase.course;
+        let teacher;
+        try {
+          teacher = await clerkClient.users.getUser(course.createdById);
+        } catch (error) {
+          console.error(`Error fetching teacher for course ${course.id}:`, error);
+          teacher = null;
+        }
+        return {
+          ...course,
+          schedules: course.schedules
+            .filter((schedule: Schedule) => new Date(schedule.scheduledDate) > new Date())
+            .sort((a: Schedule, b: Schedule) => 
+              new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+            ),
+          teacher: {
+            name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
+            image: teacher?.imageUrl || '/placeholder-avatar.png'
+          }
+        };
+      })
+    ) as CourseWithProgressAndCategory[]
 
     for (const course of courses) {
       if (course.courseType === 'RECORDED') {
@@ -82,7 +107,8 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
       coursesInProgress,
       allCourses,
     }
-  } catch {
+  } catch (error) {
+    console.error('Error fetching dashboard courses:', error)
     return {
       completedCourses: [],
       coursesInProgress: [],
