@@ -7,7 +7,6 @@ import { DashboardContent } from '@/app/(dashboard)/(routes)/(root)/_components/
 
 export default async function Dashboard() {
   const { userId } = auth()
-  
   if (!userId) {
     return redirect('/sign-in')
   }
