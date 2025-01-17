@@ -101,15 +101,18 @@ export const WelcomeBanner = ({
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full md:w-auto md:flex-1 md:max-w-[800px] lg:max-w-[1000px]">
-        <StatsCards
-          userId={userId}
-          completedCourses={completedCourses}
-          coursesInProgress={coursesInProgress}
-          upcomingLiveCount={upcomingLiveCount}
-          onFilterChange={onFilterChange}
-          activeFilter={activeFilter}
-        />
+      <div className="space-y-2 w-full md:w-auto md:flex-1 md:max-w-[800px] lg:max-w-[1000px]">
+        <p className="text-sm text-muted-foreground">Click cards below to filter your courses</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <StatsCards
+            userId={userId}
+            completedCourses={completedCourses}
+            coursesInProgress={coursesInProgress}
+            upcomingLiveCount={upcomingLiveCount}
+            onFilterChange={onFilterChange}
+            activeFilter={activeFilter}
+          />
+        </div>
       </div>
     </div>
   )
