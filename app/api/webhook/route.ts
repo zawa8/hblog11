@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     if (isLiveBooking && purchaseId) {
       // Update existing purchase for live class booking
-      const purchase = await db.purchase.update({
+      await db.purchase.update({
         where: { id: purchaseId },
         data: { isBooked: true }
       })
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       // Check if course should be unpublished
       const course = await db.course.findUnique({
         where: { id: courseId },
-        include: { 
+        include: {
           purchases: true,
           chapters: true
         }

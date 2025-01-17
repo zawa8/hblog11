@@ -1,26 +1,9 @@
 import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
 import { Purchase } from '@prisma/client'
+import Stripe from 'stripe'
 import { db } from '@/lib/db'
 import { stripe } from '@/lib/stripe'
-import Stripe from 'stripe'
-
-interface Chapter {
-  id: string;
-  title: string;
-  description: string | null;
-  videoUrl: string | null;
-  position: number;
-  isPublished: boolean;
-  isFree: boolean;
-  startTime: Date | null;
-  endTime: Date | null;
-  topic: string | null;
-  speaker: string | null;
-  courseId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 interface Course {
   id: string;

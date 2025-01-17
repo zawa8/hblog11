@@ -75,7 +75,6 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
     try {
       setIsLoading(true)
       const response = await axios.post(`/api/courses/${params.courseId}/book`)
-      
       // Redirect to Stripe Checkout
       if (response.data.url) {
         window.location.href = response.data.url
