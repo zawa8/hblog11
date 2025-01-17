@@ -13,25 +13,11 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
             userId: userId
           }
         },
-        courseType: 'LIVE',
-        chapters: {
-          some: {
-            startTime: {
-              gt: now
-            }
-          }
-        }
+        courseType: 'LIVE'
       },
       include: {
         category: true,
-        chapters: {
-          where: {
-            startTime: {
-              gt: now
-            }
-          },
-          select: { id: true }
-        },
+        chapters: true,
         schedules: {
           select: { id: true }
         }

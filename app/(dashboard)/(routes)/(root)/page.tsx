@@ -13,7 +13,7 @@ export default async function Dashboard() {
 
   const user = await currentUser()
   const [
-    { completedCourses, coursesInProgress },
+    { completedCourses, coursesInProgress, allCourses },
     upcomingLiveCount,
     upcomingLiveCourses
   ] = await Promise.all([
@@ -28,7 +28,8 @@ export default async function Dashboard() {
     completedCourses,
     coursesInProgress,
     upcomingLiveCount,
-    upcomingLiveCourses
+    upcomingLiveCourses,
+    allCourses
   }
 
   return <DashboardContent initialData={initialData} />

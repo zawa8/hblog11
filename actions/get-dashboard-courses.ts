@@ -15,6 +15,7 @@ type CourseWithProgressAndCategory = Prisma.CourseGetPayload<{
 type DashboardCourses = {
   completedCourses: CourseWithProgressAndCategory[]
   coursesInProgress: CourseWithProgressAndCategory[]
+  allCourses: CourseWithProgressAndCategory[]
 }
 
 export async function getDashboardCourses(userId: string): Promise<DashboardCourses> {
@@ -47,20 +48,23 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
     }
 
     const completedCourses = courses.filter((course) => 
-      course.courseType === 'RECORDED' ? course.progress === 100 : false
+      course.courseType === 'RECORDED' && course.progress === 100
     )
     const coursesInProgress = courses.filter((course) => 
-      course.courseType === 'RECORDED' ? (course?.progress ?? 0) < 100 : true
+      course.courseType === 'RECORDED' && (course?.progress ?? 0) < 100
     )
+    const allCourses = courses
 
     return {
       completedCourses,
       coursesInProgress,
+      allCourses,
     }
   } catch {
     return {
       completedCourses: [],
       coursesInProgress: [],
+      allCourses: [],
     }
   }
 }

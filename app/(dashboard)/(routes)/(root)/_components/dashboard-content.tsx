@@ -13,6 +13,7 @@ interface DashboardContentProps {
     coursesInProgress: CourseWithProgressAndCategory[]
     upcomingLiveCount: number
     upcomingLiveCourses: CourseWithProgressAndCategory[]
+    allCourses: CourseWithProgressAndCategory[]
   }
 }
 
@@ -28,7 +29,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
       case 'upcoming':
         return initialData.upcomingLiveCourses
       default:
-        return [...initialData.coursesInProgress, ...initialData.completedCourses]
+        return initialData.allCourses
     }
   }
 
@@ -39,7 +40,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
         fullName={initialData.fullName}
         completedCourses={initialData.completedCourses}
         coursesInProgress={initialData.coursesInProgress}
-        upcomingLiveCount={initialData.upcomingLiveCount}
+        upcomingLiveCount={initialData.upcomingLiveCourses.length}
         onFilterChange={setActiveFilter}
         activeFilter={activeFilter}
       />
