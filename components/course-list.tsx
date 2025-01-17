@@ -20,6 +20,7 @@ export default function CoursesList({ items }: CoursesListProps) {
             chaptersLength={course.chapters.length}
             category={course?.category?.name ?? ''}
             courseType={course.courseType}
+            schedules={course.schedules}
           />
         ))}
       </div>

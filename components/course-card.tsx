@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BookOpenIcon, RadioTowerIcon } from 'lucide-react'
 import { formatPrice } from '@/lib/format'
+import { format } from 'date-fns'
 import { IconBadge } from './icon-badge'
 import { CourseProgress } from './course-progress'
 import { Badge } from '@/components/ui/badge'
@@ -15,6 +16,7 @@ type CourseCardProps = {
   progress: number | null
   category: string
   courseType: 'RECORDED' | 'LIVE'
+  schedules?: { scheduledDate: string | Date }[]
 }
 
 export default function CourseCard({
@@ -26,6 +28,7 @@ export default function CourseCard({
   progress,
   category,
   courseType,
+  schedules,
 }: CourseCardProps) {
   return (
     <Link href={`/courses/${id}`}>
@@ -54,7 +57,16 @@ export default function CourseCard({
             </div>
           </div>
 
-          {progress !== null ? (
+          {courseType === 'LIVE' && schedules && schedules.length > 0 ? (
+            <p className="text-md font-medium text-slate-700 md:text-sm">
+              Next class: {format(
+                typeof schedules[0].scheduledDate === 'string' 
+                  ? new Date(schedules[0].scheduledDate) 
+                  : schedules[0].scheduledDate, 
+                "MMM d, yyyy 'at' h:mm a"
+              )}
+            </p>
+          ) : courseType === 'RECORDED' && progress !== null ? (
             <CourseProgress variant={progress === 100 ? 'success' : 'default'} size="sm" value={progress} />
           ) : (
             <p className="text-md font-medium text-slate-700 md:text-sm">{formatPrice(price)}</p>

@@ -42,17 +42,17 @@ model Course {
 }
 
 model Schedule {
-  id        String   @id @default(cuid())
-  time      String   // Store time in HH:mm format
-  topic     String
-  speaker   String
-  position  Int      // For ordering schedule entries
+  id            String   @id @default(cuid())
+  scheduledDate DateTime // Date and time of the session
+  topic         String
+  speaker       String
+  position      Int      // For ordering schedule entries
   
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId  String
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId      String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([courseId])
 }
