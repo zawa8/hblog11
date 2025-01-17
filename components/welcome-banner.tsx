@@ -93,10 +93,10 @@ export const WelcomeBanner = ({
               </span>
             </h1>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Let&apos;s Begin Learning where you left off,
+          <p className="text-muted-foreground text-base">
+            Let&apos;s begin learning where you left off,
           </p>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base">
             Keep it up and improve your progress
           </p>
         </div>
