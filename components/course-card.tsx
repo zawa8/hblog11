@@ -1,3 +1,5 @@
+"use client"
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { BookOpenIcon, RadioTowerIcon, Timer } from 'lucide-react'
@@ -95,7 +97,7 @@ export default function CourseCard({
           </div>
 
           {courseType === 'LIVE' && schedules && schedules.length > 0 ? (
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               <p className="text-md font-medium text-slate-700 md:text-sm">
                 {format(
                   typeof schedules[0].scheduledDate === 'string'
