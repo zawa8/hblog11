@@ -19,13 +19,16 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
         category: true,
         chapters: true,
         schedules: {
-          select: { id: true }
+          select: { 
+            id: true,
+            scheduledDate: true 
+          }
         }
       }
     })
 
     const coursesWithProgress: CourseWithProgressAndCategory[] = await Promise.all(
-      courses.map(async (course) => {
+      courses.map(async (course: typeof courses[0]) => {
         const progressPercentage = await getProgress(userId, course.id)
         return {
           ...course,
