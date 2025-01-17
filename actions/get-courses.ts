@@ -7,6 +7,7 @@ export type CourseWithProgressAndCategory = Awaited<ReturnType<typeof db.course.
   chapters: { id: string }[]
   schedules: { id: string; scheduledDate: Date }[]
   progress: number | null
+  nextLiveDate: Date | null
   teacher: {
     name: string
     image: string | null
@@ -92,9 +93,14 @@ export async function getCourses({
           teacher = null;
         }
 
+        const nextLiveDate = course.schedules.length > 0 
+          ? course.schedules[0].scheduledDate // Already sorted by asc in the query
+          : null;
+
         return {
           ...course,
           progress: progressPercentage,
+          nextLiveDate,
           teacher: {
             name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
             image: teacher?.imageUrl || '/placeholder-avatar.png'
