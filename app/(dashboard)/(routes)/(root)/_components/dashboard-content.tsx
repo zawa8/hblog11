@@ -34,7 +34,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
 
   return (
     <div className="space-y-6 p-6">
-      <WelcomeBanner 
+      <WelcomeBanner
         userId={initialData.userId}
         fullName={initialData.fullName}
         completedCourses={initialData.completedCourses}

@@ -13,8 +13,8 @@ interface InfoCardProps {
 export const InfoCard = ({ variant, icon: Icon, numberOfItems, label, isActive }: InfoCardProps) => {
   return (
     <div className={cn(
-      "flex items-center gap-x-2 rounded-md border p-3 transition-all",
-      isActive && "border-violet-600 bg-violet-100/50"
+      'flex items-center gap-x-2 rounded-md border p-3 transition-all',
+      isActive && 'border-violet-600 bg-violet-100/50'
     )}>
       <IconBadge variant={variant} icon={Icon} />
       <div>
