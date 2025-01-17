@@ -1,37 +1,27 @@
 import { db } from '@/lib/db'
 import { getProgress } from './get-progress'
+import { CourseWithProgressAndCategory } from './get-courses'
 
-interface Course {
+type Schedule = {
   id: string
-  title: string
-  imageUrl: string | null
-  courseType: 'RECORDED' | 'LIVE'
-  category: { id: string; name: string } | null
-  chapters: Array<{ 
+  scheduledDate: Date
+}
+
+type PurchasedCourse = {
+  course: {
     id: string
     title: string
     description: string | null
+    imageUrl: string | null
+    price: number | null
     isPublished: boolean
+    courseType: 'RECORDED' | 'LIVE'
+    category: { id: string; name: string } | null
+    chapters: { id: string }[]
+    schedules: Schedule[]
     createdAt: Date
     updatedAt: Date
-    speaker: string | null
-  }>
-  schedules: Array<{
-    id: string
-    scheduledDate: Date
-  }>
-}
-
-interface PurchasedCourse {
-  course: Course & {
-    category: { id: string; name: string } | null
-    chapters: Course['chapters']
-    schedules: Course['schedules']
   }
-}
-
-interface CourseWithProgressAndCategory extends Course {
-  progress: number
 }
 
 type DashboardCourses = {
@@ -62,8 +52,10 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
       return {
         ...course,
         schedules: course.schedules
-          .filter(schedule => new Date(schedule.scheduledDate) > new Date())
-          .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
+          .filter((schedule: Schedule) => new Date(schedule.scheduledDate) > new Date())
+          .sort((a: Schedule, b: Schedule) => 
+            new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+          )
       };
     }) as CourseWithProgressAndCategory[]
 
