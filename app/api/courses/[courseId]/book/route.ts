@@ -2,6 +2,8 @@ import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
 import { Purchase } from '@prisma/client'
 import { db } from '@/lib/db'
+import { stripe } from '@/lib/stripe'
+import Stripe from 'stripe'
 
 interface Chapter {
   id: string;
@@ -89,36 +91,60 @@ export async function POST(
       return new NextResponse('Course is full', { status: 400 })
     }
 
-    // Create purchase
+    // Create temporary purchase record
     const purchase = await db.purchase.create({
       data: {
         userId,
         courseId: params.courseId,
+        isBooked: false, // Will be set to true after payment confirmation
       },
     })
 
-    // Check if course should be unpublished
-    const chapters = await db.chapter.findMany({
-      where: {
-        courseId: params.courseId,
-      }
-    }) as Chapter[]
+    // Create Stripe checkout session
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'MYR',
+          product_data: {
+            name: course.title,
+            description: 'Live Class Seat Booking',
+          },
+          unit_amount: Math.round(course.price! * 100),
+        },
+      },
+    ]
 
-    const currentDate = new Date()
-    const hasUpcomingSessions = chapters
-      .filter(chapter => chapter.endTime !== null)
-      .some(chapter => new Date(chapter.endTime!) > currentDate)
+    let stripeCustomer = await db.stripeCustomer.findUnique({
+      where: { userid: userId },
+      select: { stripeCustomerId: true },
+    })
 
-    // If no upcoming sessions and course is full, unpublish it
-    if (!hasUpcomingSessions && typedCourse.maxParticipants &&
-        typedCourse.purchases.length >= typedCourse.maxParticipants) {
-      await db.course.update({
-        where: { id: params.courseId },
-        data: { isPublished: false }
+    if (!stripeCustomer) {
+      const customer = await stripe.customers.create({ email: userId })
+      stripeCustomer = await db.stripeCustomer.create({
+        data: {
+          userid: userId,
+          stripeCustomerId: customer.id,
+        },
       })
     }
 
-    return NextResponse.json(purchase)
+    const session = await stripe.checkout.sessions.create({
+      customer: stripeCustomer.stripeCustomerId,
+      line_items,
+      mode: 'payment',
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${course.id}?success=1`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${course.id}?cancelled=1`,
+      metadata: {
+        courseId: course.id,
+        userId: userId,
+        purchaseId: purchase.id,
+        isLiveBooking: 'true',
+      },
+    })
+
+    return NextResponse.json({ url: session.url })
   } catch (error) {
     // console.error('[BOOK_ERROR]', error)
     return new NextResponse('Internal Error', { status: 500 })

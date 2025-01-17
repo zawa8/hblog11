@@ -74,12 +74,16 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
   const handleBooking = async () => {
     try {
       setIsLoading(true)
-      await axios.post(`/api/courses/${params.courseId}/book`)
-      toast.success('Successfully booked!')
-      fetchCourseData() // Refresh data
+      const response = await axios.post(`/api/courses/${params.courseId}/book`)
+      
+      // Redirect to Stripe Checkout
+      if (response.data.url) {
+        window.location.href = response.data.url
+      } else {
+        throw new Error('No checkout URL received')
+      }
     } catch (error: any) {
       toast.error(error?.response?.data || 'Something went wrong')
-    } finally {
       setIsLoading(false)
     }
   }

@@ -10,7 +10,8 @@ export default authMiddleware({
     "/sign-up",
     "/api/webhook",
     "/api/uploadthing",
-    "/search"
+    "/search",
+    "/sign-in/sso-callback"
   ]
 });
 
