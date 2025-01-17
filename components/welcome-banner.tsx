@@ -1,27 +1,76 @@
+'use client'
+
 import Image from 'next/image'
-import { currentUser } from '@clerk/nextjs'
 import { Calendar, CheckCircle, Clock } from 'lucide-react'
 import { InfoCard } from '@/app/(dashboard)/(routes)/(root)/_components/info-card'
-import { getDashboardCourses } from '@/actions/get-dashboard-courses'
-import { getUpcomingLiveCount } from '@/actions/get-upcoming-live-count'
+import { CourseWithProgressAndCategory } from '@/actions/get-courses'
 
-const StatsCards = async ({ userId }: { userId: string }) => {
-  const { completedCourses, coursesInProgress } = await getDashboardCourses(userId)
-  const upcomingLiveCount = await getUpcomingLiveCount(userId)
+interface StatsCardsProps {
+  userId: string
+  completedCourses: CourseWithProgressAndCategory[]
+  coursesInProgress: CourseWithProgressAndCategory[]
+  upcomingLiveCount: number
+  onFilterChange: (filter: string | null) => void
+  activeFilter: string | null
+}
 
+const StatsCards = ({ 
+  completedCourses, 
+  coursesInProgress, 
+  upcomingLiveCount,
+  onFilterChange,
+  activeFilter
+}: StatsCardsProps) => {
   return (
     <>
-      <InfoCard icon={Clock} label="In Progress" numberOfItems={coursesInProgress.length} />
-      <InfoCard icon={CheckCircle} label="Completed" numberOfItems={completedCourses.length} variant="success" />
-      <InfoCard icon={Calendar} label="Upcoming Live" numberOfItems={upcomingLiveCount} />
+      <div onClick={() => onFilterChange(activeFilter === 'in-progress' ? null : 'in-progress')} className="cursor-pointer">
+        <InfoCard 
+          icon={Clock} 
+          label="In Progress" 
+          numberOfItems={coursesInProgress.length}
+          isActive={activeFilter === 'in-progress'}
+        />
+      </div>
+      <div onClick={() => onFilterChange(activeFilter === 'completed' ? null : 'completed')} className="cursor-pointer">
+        <InfoCard 
+          icon={CheckCircle} 
+          label="Completed" 
+          numberOfItems={completedCourses.length} 
+          variant="success"
+          isActive={activeFilter === 'completed'}
+        />
+      </div>
+      <div onClick={() => onFilterChange(activeFilter === 'upcoming' ? null : 'upcoming')} className="cursor-pointer">
+        <InfoCard 
+          icon={Calendar} 
+          label="Upcoming Live" 
+          numberOfItems={upcomingLiveCount}
+          isActive={activeFilter === 'upcoming'}
+        />
+      </div>
     </>
   )
 }
 
-export const WelcomeBanner = async () => {
-  const user = await currentUser()
-  const userId = user?.id
-  const fullName = user ? `${user.firstName} ${user.lastName}` : 'Student'
+interface WelcomeBannerProps {
+  userId: string
+  fullName: string
+  completedCourses: CourseWithProgressAndCategory[]
+  coursesInProgress: CourseWithProgressAndCategory[]
+  upcomingLiveCount: number
+  onFilterChange: (filter: string | null) => void
+  activeFilter: string | null
+}
+
+export const WelcomeBanner = ({ 
+  userId,
+  fullName,
+  completedCourses,
+  coursesInProgress,
+  upcomingLiveCount,
+  onFilterChange,
+  activeFilter
+}: WelcomeBannerProps) => {
 
   return (
     <div className="relative w-full min-h-[200px] bg-violet-50 rounded-xl p-8 flex flex-col md:flex-row justify-between items-start gap-8">
@@ -53,11 +102,16 @@ export const WelcomeBanner = async () => {
           </p>
         </div>
       </div>
-      {userId && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full md:w-auto md:flex-1 md:max-w-[800px] lg:max-w-[1000px]">
-          <StatsCards userId={userId} />
-        </div>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full md:w-auto md:flex-1 md:max-w-[800px] lg:max-w-[1000px]">
+        <StatsCards 
+          userId={userId}
+          completedCourses={completedCourses}
+          coursesInProgress={coursesInProgress}
+          upcomingLiveCount={upcomingLiveCount}
+          onFilterChange={onFilterChange}
+          activeFilter={activeFilter}
+        />
+      </div>
     </div>
   )
 }

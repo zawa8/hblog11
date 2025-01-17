@@ -1,22 +1,36 @@
-import { auth } from '@clerk/nextjs'
+import { auth, currentUser } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
-import CoursesList from '@/components/course-list'
 import { getDashboardCourses } from '@/actions/get-dashboard-courses'
-import { WelcomeBanner } from '@/components/welcome-banner'
+import { getUpcomingLiveCount } from '@/actions/get-upcoming-live-count'
+import { getUpcomingLiveCourses } from '@/actions/get-upcoming-live-courses'
+import { DashboardContent } from '@/app/(dashboard)/(routes)/(root)/_components/dashboard-content'
 
 export default async function Dashboard() {
   const { userId } = auth()
-
+  
   if (!userId) {
     return redirect('/sign-in')
   }
 
-  const { completedCourses, coursesInProgress } = await getDashboardCourses(userId)
+  const user = await currentUser()
+  const [
+    { completedCourses, coursesInProgress },
+    upcomingLiveCount,
+    upcomingLiveCourses
+  ] = await Promise.all([
+    getDashboardCourses(userId),
+    getUpcomingLiveCount(userId),
+    getUpcomingLiveCourses(userId)
+  ])
 
-  return (
-    <div className="space-y-6 p-6">
-      <WelcomeBanner />
-      <CoursesList items={[...coursesInProgress, ...completedCourses]} />
-    </div>
-  )
+  const initialData = {
+    userId,
+    fullName: user ? `${user.firstName} ${user.lastName}` : 'Student',
+    completedCourses,
+    coursesInProgress,
+    upcomingLiveCount,
+    upcomingLiveCourses
+  }
+
+  return <DashboardContent initialData={initialData} />
 }

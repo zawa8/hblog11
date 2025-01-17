@@ -1,5 +1,5 @@
 import { LucideIcon } from 'lucide-react'
-
+import { cn } from '@/lib/utils'
 import { IconBadge } from '@/components/icon-badge'
 
 interface InfoCardProps {
@@ -7,11 +7,15 @@ interface InfoCardProps {
   variant?: 'default' | 'success'
   label: string
   icon: LucideIcon
+  isActive?: boolean
 }
 
-export const InfoCard = ({ variant, icon: Icon, numberOfItems, label }: InfoCardProps) => {
+export const InfoCard = ({ variant, icon: Icon, numberOfItems, label, isActive }: InfoCardProps) => {
   return (
-    <div className="flex items-center gap-x-2 rounded-md border p-3">
+    <div className={cn(
+      "flex items-center gap-x-2 rounded-md border p-3 transition-all",
+      isActive && "border-violet-600 bg-violet-100/50"
+    )}>
       <IconBadge variant={variant} icon={Icon} />
       <div>
         <p className="font-medium">{label}</p>
