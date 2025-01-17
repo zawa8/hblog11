@@ -2,11 +2,10 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { BookOpenIcon, RadioTowerIcon, Timer } from 'lucide-react'
+import { RadioTowerIcon, Timer } from 'lucide-react'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { formatPrice } from '@/lib/format'
-import { IconBadge } from './icon-badge'
 import { CourseProgress } from './course-progress'
 import { Badge } from '@/components/ui/badge'
 
@@ -91,7 +90,7 @@ export default function CourseCard({
           </div>
           <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
             <div className="relative h-6 w-6 rounded-full overflow-hidden">
-              <Image 
+              <Image
                 fill
                 src={teacher.image || '/placeholder-avatar.png'}
                 alt={teacher.name}
