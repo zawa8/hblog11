@@ -142,8 +142,9 @@ model UserProgress {
 }
 
 model Purchase {
-  id     String @id @default(cuid())
-  userId String
+  id       String  @id @default(cuid())
+  userId   String
+  isBooked Boolean @default(false)
 
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId String

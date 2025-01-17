@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
-import { Purchase } from '@prisma/client'
+import { Purchase, Prisma } from '@prisma/client'
 import Stripe from 'stripe'
 import { db } from '@/lib/db'
 import { stripe } from '@/lib/stripe'
@@ -75,12 +75,14 @@ export async function POST(
     }
 
     // Create temporary purchase record
+    const purchaseData: Prisma.PurchaseUncheckedCreateInput = {
+      userId,
+      courseId: params.courseId,
+      isBooked: false // Will be set to true after payment confirmation
+    }
+
     const purchase = await db.purchase.create({
-      data: {
-        userId,
-        courseId: params.courseId,
-        isBooked: false, // Will be set to true after payment confirmation
-      },
+      data: purchaseData
     })
 
     // Create Stripe checkout session
