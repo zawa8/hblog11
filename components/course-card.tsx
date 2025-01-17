@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
 import Image from 'next/image'
 import Link from 'next/link'
 import { BookOpenIcon, RadioTowerIcon, Timer } from 'lucide-react'
 import { format } from 'date-fns'
+import { useEffect, useState } from 'react'
 import { formatPrice } from '@/lib/format'
 import { IconBadge } from './icon-badge'
 import { CourseProgress } from './course-progress'
 import { Badge } from '@/components/ui/badge'
-import { useEffect, useState } from 'react'
 
 type CourseCardProps = {
   id: string
@@ -23,40 +23,39 @@ type CourseCardProps = {
 }
 
 const CountdownTimer = ({ targetDate }: { targetDate: string | Date }) => {
-  const [timeLeft, setTimeLeft] = useState<string>("");
+  const [timeLeft, setTimeLeft] = useState<string>('')
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const difference = new Date(targetDate).getTime() - new Date().getTime();
-      
+      const difference = new Date(targetDate).getTime() - new Date().getTime()
       if (difference <= 0) {
-        return "Starting soon";
+        return 'Starting soon'
       }
 
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
 
       if (days > 0) {
-        return `${days}d ${hours}h remaining`;
+        return `${days}d ${hours}h remaining`
       } else if (hours > 0) {
-        return `${hours}h ${minutes}m remaining`;
+        return `${hours}h ${minutes}m remaining`
       } else {
-        return `${minutes}m remaining`;
+        return `${minutes}m remaining`
       }
-    };
+    }
 
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000 * 60); // Update every minute
+      setTimeLeft(calculateTimeLeft())
+    }, 1000 * 60) // Update every minute
 
-    setTimeLeft(calculateTimeLeft()); // Initial calculation
+    setTimeLeft(calculateTimeLeft()) // Initial calculation
 
-    return () => clearInterval(timer);
-  }, [targetDate]);
+    return () => clearInterval(timer)
+  }, [targetDate])
 
-  return <span className="text-sm">{timeLeft}</span>;
-};
+  return <span className="text-sm">{timeLeft}</span>
+}
 
 export default function CourseCard({
   id,
