@@ -4,15 +4,30 @@ import { getProgress } from './get-progress'
 interface Course {
   id: string
   title: string
-  imageUrl: string
+  imageUrl: string | null
   courseType: 'RECORDED' | 'LIVE'
-  category: { id: string; name: string }
-  chapters: { id: string }[]
-  schedules: { id: string; scheduledDate: Date }[]
+  category: { id: string; name: string } | null
+  chapters: Array<{ 
+    id: string
+    title: string
+    description: string | null
+    isPublished: boolean
+    createdAt: Date
+    updatedAt: Date
+    speaker: string | null
+  }>
+  schedules: Array<{
+    id: string
+    scheduledDate: Date
+  }>
 }
 
 interface PurchasedCourse {
-  course: Course
+  course: Course & {
+    category: { id: string; name: string } | null
+    chapters: Course['chapters']
+    schedules: Course['schedules']
+  }
 }
 
 interface CourseWithProgressAndCategory extends Course {
@@ -47,10 +62,8 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
       return {
         ...course,
         schedules: course.schedules
-          .filter((schedule: { scheduledDate: Date }) => new Date(schedule.scheduledDate) > new Date())
-          .sort((a: { scheduledDate: Date }, b: { scheduledDate: Date }) => 
-            new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
-          )
+          .filter(schedule => new Date(schedule.scheduledDate) > new Date())
+          .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
       };
     }) as CourseWithProgressAndCategory[]
 
