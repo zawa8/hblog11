@@ -5,7 +5,7 @@ import { isTeacher } from '@/lib/teacher'
 
 interface Schedule {
   id: string;
-  time: string;
+  scheduledDate: Date;
   topic: string;
   speaker: string;
   position: number;
@@ -15,7 +15,7 @@ interface Schedule {
 }
 
 interface ScheduleInput {
-  time: string;
+  scheduledDate: string;
   topic: string;
   speaker: string;
   position: number;
@@ -25,7 +25,7 @@ interface ScheduleInput {
 const isValidSchedule = (schedule: any): schedule is ScheduleInput => {
   return (
     typeof schedule === 'object' &&
-    typeof schedule.time === 'string' && schedule.time.trim() !== '' &&
+    typeof schedule.scheduledDate === 'string' && schedule.scheduledDate.trim() !== '' &&
     typeof schedule.topic === 'string' && schedule.topic.trim() !== '' &&
     typeof schedule.speaker === 'string' && schedule.speaker.trim() !== '' &&
     typeof schedule.position === 'number' && schedule.position >= 0
@@ -107,7 +107,7 @@ export async function PUT(
         const scheduleId = await db.schedule.create({
           data: {
             courseId: params.courseId,
-            time: schedule.time,
+            scheduledDate: new Date(schedule.scheduledDate),
             topic: schedule.topic,
             speaker: schedule.speaker,
             position: index,
