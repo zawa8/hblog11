@@ -17,12 +17,17 @@ type PurchasedCourse = {
     price: number | null
     isPublished: boolean
     courseType: 'RECORDED' | 'LIVE'
+    categoryId: string | null
     category: { id: string; name: string } | null
     chapters: { id: string }[]
     schedules: Schedule[]
     createdById: string
     createdAt: Date
     updatedAt: Date
+    agoraChannelName: string | null
+    agoraToken: string | null
+    isLiveActive: boolean
+    maxParticipants: number | null
   }
 }
 
@@ -53,6 +58,11 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
             chapters: {
               where: { isPublished: true }
             },
+            categoryId: true,
+            agoraChannelName: true,
+            agoraToken: true,
+            isLiveActive: true,
+            maxParticipants: true,
             schedules: true
           }
         }
@@ -76,6 +86,11 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
             .sort((a: Schedule, b: Schedule) => 
               new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
             ),
+          nextLiveDate: course.schedules
+            .filter((schedule: Schedule) => new Date(schedule.scheduledDate) > new Date())
+            .sort((a: Schedule, b: Schedule) => 
+              new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+            )[0]?.scheduledDate || null,
           teacher: {
             name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
             image: teacher?.imageUrl || '/placeholder-avatar.png'

@@ -27,12 +27,25 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
         createdById: true,
         createdAt: true,
         updatedAt: true,
+        categoryId: true,
         category: true,
+        agoraChannelName: true,
+        agoraToken: true,
+        isLiveActive: true,
+        maxParticipants: true,
         chapters: true,
         schedules: {
           select: { 
             id: true,
             scheduledDate: true 
+          },
+          orderBy: {
+            scheduledDate: 'asc'
+          },
+          where: {
+            scheduledDate: {
+              gte: new Date()
+            }
           }
         }
       }
@@ -54,9 +67,14 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
           teacher = null;
         }
 
+        const nextLiveDate = course.schedules.length > 0 
+          ? course.schedules[0].scheduledDate
+          : null;
+
         return {
           ...course,
           progress: progressPercentage,
+          nextLiveDate,
           teacher: {
             name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
             image: teacher?.imageUrl || '/placeholder-avatar.png'
