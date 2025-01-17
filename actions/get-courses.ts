@@ -47,7 +47,12 @@ export async function getCourses({
         createdById: true,
         createdAt: true,
         updatedAt: true,
+        categoryId: true,
         category: true,
+        agoraChannelName: true,
+        agoraToken: true,
+        isLiveActive: true,
+        maxParticipants: true,
         chapters: { 
           where: { isPublished: true }, 
           select: { id: true } 
