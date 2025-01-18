@@ -13,13 +13,13 @@ import { Button } from '@/components/ui/button'
 
 interface Schedule {
   id: string;
-  time: string;
   topic: string;
   speaker: string;
   position: number;
   courseId: string;
   createdAt: Date;
   updatedAt: Date;
+  scheduledDate: string;
 }
 
 type CourseWithRelations = Course & {
@@ -226,7 +226,7 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
                   Speaker: {schedule.speaker}
                 </div>
                 <div className="text-sm text-slate-500">
-                  Time: {schedule.time}
+                  Time: {format(new Date(schedule.scheduledDate), 'hh:mm a')}
                 </div>
               </div>
             ))}

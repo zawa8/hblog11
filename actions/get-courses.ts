@@ -93,9 +93,8 @@ export async function getCourses({
           teacher = null;
         }
 
-        const nextLiveDate = course.schedules.length > 0 
-          ? course.schedules[0].scheduledDate // Already sorted by asc in the query
-          : null;
+        // Get the next schedule (already filtered and sorted by the database query)
+        const nextLiveDate = course.schedules[0]?.scheduledDate || null;
 
         return {
           ...course,

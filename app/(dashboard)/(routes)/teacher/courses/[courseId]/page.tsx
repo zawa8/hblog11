@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import { CircleDollarSign, File, LayoutDashboard, ListChecks } from 'lucide-react'
-import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
+import { toZonedTime } from 'date-fns-tz'
 import { IconBadge } from '@/components/icon-badge'
 import { TitleForm } from './_components/title-form'
 import { DescriptionForm } from './_components/description-form'
@@ -18,29 +18,56 @@ import Actions from './_components/actions'
 
 interface Schedule {
   id: string;
-  time: string;
   topic: string;
   speaker: string;
   position: number;
   courseId: string;
   createdAt: Date;
   updatedAt: Date;
+  scheduledDate: string;
 }
 
-type CourseWithRelations = Prisma.CourseGetPayload<{
-  include: {
-    attachments: true;
-    chapters: {
-      include: {
-        muxData: true;
-      };
-    };
-  };
-}> & {
+type CourseWithRelations = {
+  id: string;
+  createdById: string;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  price: number | null;
+  isPublished: boolean;
+  categoryId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  agoraChannelName: string | null;
+  agoraToken: string | null;
+  courseType: 'RECORDED' | 'LIVE';
+  isLiveActive: boolean;
+  nextLiveDate: Date | null;
+  maxParticipants: number | null;
+  attachments: Array<{
+    id: string;
+    name: string;
+    url: string;
+    courseId: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }>;
+  chapters: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    videoUrl: string | null;
+    position: number;
+    isPublished: boolean;
+    isFree: boolean;
+    muxData: {
+      id: string;
+      assetId: string;
+      playbackId: string | null;
+    } | null;
+  }>;
   schedules: Schedule[];
-  maxParticipants?: number | null;
-  nextLiveDate?: Date | null;
-};
+}
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   const { userId } = auth()
@@ -61,14 +88,27 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   }) as unknown as CourseWithRelations | null
 
   // Fetch schedules separately
-  const schedules = course ? await db.$queryRaw<Schedule[]>`
+  type ScheduleWithDateObj = Omit<Schedule, 'scheduledDate'> & { scheduledDate: Date };
+  
+  const schedules = course ? await db.$queryRaw<ScheduleWithDateObj>`
     SELECT * FROM "Schedule"
     WHERE "courseId" = ${course.id}
     ORDER BY position ASC
-  ` : []
+  `.then((results: ScheduleWithDateObj[]) => results.map((schedule: ScheduleWithDateObj) => {
+    // Convert to Asia/Singapore timezone
+    const zonedDate = toZonedTime(schedule.scheduledDate, 'Asia/Singapore');
+    return {
+      ...schedule,
+      scheduledDate: zonedDate.toISOString()
+    };
+  })) : []
 
   if (course) {
-    course.schedules = schedules
+    // Convert nextLiveDate to Asia/Singapore timezone if it exists
+    if (course.nextLiveDate) {
+      course.nextLiveDate = toZonedTime(course.nextLiveDate, 'Asia/Singapore');
+    }
+    course.schedules = schedules;
   }
 
   if (!course) {
@@ -89,7 +129,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
     course.categoryId,
     course.courseType === 'LIVE'
       ? course.schedules.length > 0 // Check if there are schedule entries for live courses
-      : course.chapters.some((chapter) => chapter.isPublished), // Check for published chapters for recorded courses
+      : course.chapters.some((chapter: { isPublished: boolean }) => chapter.isPublished), // Check for published chapters for recorded courses
   ]
 
   const totalFields = requiredFields.length
@@ -122,7 +162,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
             <CategoryForm
               initialData={course}
               courseId={course.id}
-              options={categories.map((category) => ({
+              options={categories.map((category: { name: string, id: string }) => ({
                 label: category.name,
                 value: category.id,
               }))}
@@ -149,6 +189,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
                   <ScheduleForm
                     courseId={course.id}
                     initialSchedules={course.schedules}
+                    nextLiveDate={course.nextLiveDate}
                   />
                 </div>
               </>

@@ -67,14 +67,13 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
           teacher = null;
         }
 
-        const nextLiveDate = course.schedules.length > 0 
-          ? course.schedules[0].scheduledDate
-          : null;
+        // Get the next schedule (already filtered and sorted by the database query)
+        const nextLiveDate = course.schedules[0]?.scheduledDate || null;
 
         return {
           ...course,
           progress: progressPercentage,
-          nextLiveDate,
+          nextLiveDate: nextLiveDate,
           teacher: {
             name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
             image: teacher?.imageUrl || '/placeholder-avatar.png'

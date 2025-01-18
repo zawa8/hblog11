@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { RadioTowerIcon, Timer } from 'lucide-react'
+import { RadioTowerIcon, Timer, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { formatPrice } from '@/lib/format'
@@ -17,7 +17,7 @@ type CourseCardProps = {
   progress: number | null
   category: string
   courseType: 'RECORDED' | 'LIVE'
-  schedules?: { scheduledDate: string | Date }[]
+  nextLiveDate?: Date | string | null
   teacher: {
     name: string
     image: string | null
@@ -68,7 +68,7 @@ export default function CourseCard({
   progress,
   category,
   courseType,
-  schedules,
+  nextLiveDate,
 }: CourseCardProps) {
   return (
     <Link href={`/courses/${id}`}>
@@ -77,7 +77,7 @@ export default function CourseCard({
           <Image fill className="object-cover" alt={title} src={imageUrl} />
         </div>
 
-        <div className="flex flex-col pt-2">
+        <div className="flex flex-col pt-2 h-full">
           <div className="line-clamp-2 text-lg font-medium transition group-hover:text-primary md:text-base">
             {title}
           </div>
@@ -102,26 +102,34 @@ export default function CourseCard({
             </p>
           </div>
 
-          {courseType === 'LIVE' && schedules && schedules.length > 0 ? (
-            <div className="space-y-1">
-              <p className="text-md font-medium text-slate-700 md:text-sm">
-                {format(
-                  typeof schedules[0].scheduledDate === 'string'
-                    ? new Date(schedules[0].scheduledDate)
-                    : schedules[0].scheduledDate,
-                  "MMM d, yyyy 'at' h:mm a"
-                )}
-              </p>
-              <div className="flex items-center gap-x-2 text-slate-500">
-                <Timer className="h-4 w-4" />
-                <CountdownTimer targetDate={schedules[0].scheduledDate} />
+          <p className="text-md font-medium text-slate-700 md:text-sm">{formatPrice(price)}</p>
+
+          <div className="flex flex-col mt-2 space-y-2">
+            {courseType === 'LIVE' && nextLiveDate ? (
+              <div className="space-y-1">
+                <div className="flex items-center gap-x-2 text-slate-700">
+                  <Calendar className="h-4 w-4" />
+                  <p className="text-sm">
+                  {format(
+                    typeof nextLiveDate === 'string'
+                      ? new Date(nextLiveDate)
+                      : nextLiveDate,
+                    "MMM d, yyyy 'at' h:mm a"
+                  )}
+                  </p>
+                </div>
+                <div className="flex items-center gap-x-2 text-slate-500">
+                  <Timer className="h-4 w-4" />
+                  <CountdownTimer targetDate={nextLiveDate} />
+                </div>
               </div>
-            </div>
-          ) : courseType === 'RECORDED' && progress !== null ? (
-            <CourseProgress variant={progress === 100 ? 'success' : 'default'} size="sm" value={progress} />
-          ) : (
-            <p className="text-md font-medium text-slate-700 md:text-sm">{formatPrice(price)}</p>
-          )}
+            ) : courseType === 'LIVE' ? (
+              <p className="text-sm text-slate-500">No upcoming sessions</p>
+            ) : null}
+            {courseType === 'RECORDED' && progress !== null && (
+              <CourseProgress variant={progress === 100 ? 'success' : 'default'} size="sm" value={progress} />
+            )}
+          </div>
         </div>
       </div>
     </Link>

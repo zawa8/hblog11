@@ -20,7 +20,7 @@ export default function CoursesList({ items }: CoursesListProps) {
             teacher={course.teacher}
             category={course?.category?.name ?? ''}
             courseType={course.courseType}
-            schedules={course.schedules}
+            nextLiveDate={course.nextLiveDate}
           />
         ))}
       </div>

@@ -9,19 +9,29 @@ interface ScheduleEntry {
   time: string
   topic: string
   speaker: string
-  isSaving?: boolean; // Add isSaving prop
+  isSaving?: boolean;
 }
+
 interface ScheduleFormProps {
   initialSchedule?: ScheduleEntry[]
   onScheduleChange: (schedule: ScheduleEntry[]) => void
   isSaving?: boolean;
+  nextLiveDate?: Date;
 }
 
 export const ScheduleForm = ({
   initialSchedule = [],
   onScheduleChange,
   isSaving,
+  nextLiveDate,
 }: ScheduleFormProps) => {
+  if (!nextLiveDate) {
+    return (
+      <div className="text-sm text-muted-foreground">
+        Please set the next live session date first.
+      </div>
+    );
+  }
   const [schedule, setSchedule] = useState<ScheduleEntry[]>(initialSchedule)
 
   const addEntry = () => {
@@ -39,12 +49,26 @@ export const ScheduleForm = ({
   const updateEntry = (index: number, field: keyof ScheduleEntry, value: string) => {
     const newSchedule = schedule.map((entry, i) => {
       if (i === index) {
-        return { ...entry, [field]: value }
+        const updatedEntry = { ...entry, [field]: value };
+        
+        // If time is being updated, validate it's not before the nextLiveDate
+        if (field === 'time' && value) {
+          const [hours, minutes] = value.split(':').map(Number);
+          const scheduleDate = new Date(nextLiveDate);
+          scheduleDate.setHours(hours, minutes);
+          
+          if (scheduleDate < nextLiveDate) {
+            return entry; // Don't update if time is before nextLiveDate
+          }
+        }
+        
+        return updatedEntry;
       }
-      return entry
-    })
-    setSchedule(newSchedule)
-    onScheduleChange(newSchedule)
+      return entry;
+    });
+    
+    setSchedule(newSchedule);
+    onScheduleChange(newSchedule);
   }
 
   return (
