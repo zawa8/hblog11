@@ -60,6 +60,13 @@ type CourseWithRelations = {
     position: number;
     isPublished: boolean;
     isFree: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    courseId: string;
+    endTime: Date | null;
+    speaker: string | null;
+    startTime: Date | null;
+    topic: string | null;
     muxData: {
       id: string;
       assetId: string;
@@ -81,8 +88,30 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
     include: {
       attachments: { orderBy: { createdAt: 'desc' } },
       chapters: {
-        include: { muxData: true },
-        orderBy: { position: 'asc' }
+        orderBy: { position: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          videoUrl: true,
+          position: true,
+          isPublished: true,
+          isFree: true,
+          createdAt: true,
+          updatedAt: true,
+          courseId: true,
+          endTime: true,
+          speaker: true,
+          startTime: true,
+          topic: true,
+          muxData: {
+            select: {
+              id: true,
+              assetId: true,
+              playbackId: true
+            }
+          }
+        }
       }
     }
   }) as unknown as CourseWithRelations | null
