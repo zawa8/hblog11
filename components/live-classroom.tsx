@@ -24,10 +24,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
   const [isLive, setIsLive] = useState(false)
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [setIsInitialLoading] = useState(true)
 
   // Check initial live status
   useEffect(() => {
+
     const checkLiveStatus = async () => {
       try {
         const response = await axios.get(`/api/courses/${courseId}`)

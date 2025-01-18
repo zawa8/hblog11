@@ -120,7 +120,7 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
       const { id, courseType, nextSchedule } = row.original
       const now = new Date()
       const scheduleDate = nextSchedule ? new Date(nextSchedule.scheduledDate) : null
-      const isWithin10Minutes = scheduleDate && 
+      const isWithin10Minutes = scheduleDate &&
       now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10 // 10 minutes before
       const isCourseLive = row.original.isCourseLive
 
