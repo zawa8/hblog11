@@ -24,6 +24,22 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
   const [isLive, setIsLive] = useState(false)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+
+  // Check initial live status
+  useEffect(() => {
+    const checkLiveStatus = async () => {
+      try {
+        const response = await axios.get(`/api/courses/${courseId}`)
+        setIsLive(response.data.isCourseLive || false)
+      } catch (error) {
+        toast.error('Failed to check live status')
+      } finally {
+        setIsInitialLoading(false)
+      }
+    }
+    checkLiveStatus()
+  }, [courseId])
   const [recordings, setRecordings] = useState<Recording[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const fetchRecordings = useCallback(async () => {
@@ -83,6 +99,10 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(videoTrack)
       setLocalAudioTrack(audioTrack)
+      // Update course live status
+      await axios.patch(`/api/courses/${courseId}`, {
+        isCourseLive: true
+      })
       setIsLive(true)
 
       toast.success('Live stream started!')
@@ -118,6 +138,10 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(null)
       setLocalAudioTrack(null)
+      // Update course live status
+      await axios.patch(`/api/courses/${courseId}`, {
+        isCourseLive: false
+      })
       setIsLive(false)
 
       toast.success('Live stream ended and recording saved')
@@ -133,6 +157,32 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     <div className='flex flex-col space-y-8'>
       {/* Live Stream Section */}
       <div className='space-y-4'>
+        {isTeacher && (
+          <div className='flex items-center gap-x-2 mb-4'>
+            {!isLive && (
+              <Button
+                onClick={startLiveStream}
+                variant='default'
+                size='lg'
+                className='w-full md:w-auto'
+                disabled={isLoading}
+              >
+                Start Live Session
+              </Button>
+            )}
+            {isLive && (
+              <Button
+                onClick={stopLiveStream}
+                variant='destructive'
+                size='lg'
+                className='w-full md:w-auto'
+                disabled={isLoading}
+              >
+                End Live Session
+              </Button>
+            )}
+          </div>
+        )}
         <div className='relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden'>
           {localVideoTrack && (
             <div className='absolute inset-0'>
@@ -159,32 +209,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
           )}
         </div>
 
-        {isTeacher && (
-          <div className='flex items-center gap-x-2'>
-            {!isLive && (
-              <Button
-                onClick={startLiveStream}
-                variant='default'
-                size='sm'
-                className='w-full md:w-auto'
-                disabled={isLoading}
-              >
-                Start Live
-              </Button>
-            )}
-            {isLive && (
-              <Button
-                onClick={stopLiveStream}
-                variant='destructive'
-                size='sm'
-                className='w-full md:w-auto'
-                disabled={isLoading}
-              >
-                End Live
-              </Button>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Past Recordings Section */}

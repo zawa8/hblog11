@@ -13,11 +13,20 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import Link from 'next/link'
-import { PlusCircle } from 'lucide-react'
+import { PlusCircle, RadioTower } from 'lucide-react'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+
+interface Course {
+  id: string
+  courseType: 'RECORDED' | 'LIVE'
+  isCourseLive: boolean
+  nextSchedule: {
+    scheduledDate: Date
+  } | null
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -52,12 +61,46 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
-        <Link href="/teacher/create">
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            New course
-          </Button>
-        </Link>
+        <div className="flex items-center gap-x-2">
+          {(data as Course[]).map((course) => {
+            if (course.courseType === 'LIVE' && course.nextSchedule) {
+              const now = new Date()
+              const scheduleDate = new Date(course.nextSchedule.scheduledDate)
+              const isWithin10Minutes = now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10
+              
+              return course.isCourseLive ? (
+                <Link key={course.id} href={`/courses/${course.id}/live`}>
+                  <Button variant="destructive" className="flex items-center gap-x-2">
+                    <RadioTower className="h-4 w-4" />
+                    Stop Live Session
+                  </Button>
+                </Link>
+              ) : (
+                <Link key={course.id} href={`/courses/${course.id}/live`}>
+                  <Button 
+                    disabled={!isWithin10Minutes}
+                    className="flex items-center gap-x-2"
+                  >
+                    <RadioTower className="h-4 w-4" />
+                    Start Live Session
+                    {!isWithin10Minutes && (
+                      <span className="text-xs">
+                        (Available 10 mins before start)
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+              )
+            }
+            return null
+          })}
+          <Link href="/teacher/create">
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New course
+            </Button>
+          </Link>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

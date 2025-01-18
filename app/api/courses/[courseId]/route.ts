@@ -110,14 +110,33 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
     const { courseId } = params
     const values = await req.json()
 
-    if (!userId || !isTeacher(userId)) {
+    if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    const course = await db.course.update({
+    const course = await db.course.findUnique({
       where: {
         id: courseId,
-        createdById: userId,
+      },
+    })
+
+    if (!course) {
+      return new NextResponse('Course not found', { status: 404 })
+    }
+
+    // Only allow teacher to update non-live status fields
+    if (!isTeacher(userId) && values.isCourseLive === undefined) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+
+    // Only allow course creator to update live status
+    if (values.isCourseLive !== undefined && course.createdById !== userId) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+
+    const updatedCourse = await db.course.update({
+      where: {
+        id: courseId,
       },
       data: {
         ...(values.title !== undefined && { title: values.title }),
@@ -128,6 +147,7 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
         ...(values.attachments !== undefined && { attachments: values.attachments }),
         ...(values.maxParticipants !== undefined && { maxParticipants: parseInt(values.maxParticipants) }),
         ...(values.nextLiveDate !== undefined && { nextLiveDate: new Date(values.nextLiveDate) }),
+        ...(values.isCourseLive !== undefined && { isCourseLive: values.isCourseLive }),
       },
     })
 

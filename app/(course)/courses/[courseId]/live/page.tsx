@@ -10,6 +10,7 @@ import toast from 'react-hot-toast'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { LiveClassroom } from '@/components/live-classroom'
 
 interface Schedule {
   id: string;
@@ -28,6 +29,7 @@ type CourseWithRelations = Course & {
   category: Category | null;
   purchases: Purchase[];
   maxParticipants: number | null;
+  isCourseLive: boolean;
 }
 
 const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
@@ -114,6 +116,19 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      {/* Live Video Section */}
+      <div className="mb-8">
+        <div className="relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-slate-400">
+              {course.createdById === userId
+                ? 'Click Start Live Session to begin streaming'
+                : 'Waiting for teacher to start the live stream'}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row gap-8">
         {/* Left Column - Course Details */}
         <div className="flex-1">
@@ -165,6 +180,23 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
 
         {/* Right Column - Booking and Schedule */}
         <div className="flex-1">
+          {/* Live Session Controls */}
+          {course.createdById === userId && (
+            <div className="bg-slate-100 rounded-lg p-4 mb-8">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">Live Session Controls</h3>
+                <Button
+                  size="lg"
+                  variant={course.isCourseLive ? "destructive" : "default"}
+                  disabled={isLoading}
+                  onClick={() => router.push(`/courses/${params.courseId}/live`)}
+                >
+                  {course.isCourseLive ? 'Stop Live Session' : 'Start Live Session'}
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Booking Section */}
           <div className="bg-slate-100 rounded-lg p-4 mb-8">
             <div className="flex items-center justify-between mb-2">
@@ -177,7 +209,16 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
                 </p>
               </div>
               <div className="flex flex-col gap-2">
-                {course.purchases.some(p => p.userId === userId) ? (
+                {course.createdById === userId ? (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    disabled={true}
+                    className="w-full"
+                  >
+                    Your Course
+                  </Button>
+                ) : course.purchases.some(p => p.userId === userId) ? (
                   <Button
                     size="lg"
                     variant="outline"

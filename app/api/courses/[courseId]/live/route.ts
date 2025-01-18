@@ -3,6 +3,13 @@ import { NextResponse } from 'next/server'
 import { RtcRole, RtcTokenBuilder } from 'agora-access-token'
 import { db } from '@/lib/db'
 
+const AGORA_APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID || ''
+const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE || ''
+
+if (!AGORA_APP_ID || !AGORA_APP_CERTIFICATE) {
+  throw new Error('Agora credentials not configured in environment variables')
+}
+
 type CourseWithPurchases = {
   id: string;
   createdById: string;
@@ -14,9 +21,6 @@ interface LiveSessionRequest {
   maxParticipants?: number;
   nextLiveDate?: string;
 }
-
-const AGORA_APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID!
-const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE!
 
 export async function POST(
   req: Request,
@@ -34,6 +38,18 @@ export async function POST(
     // Validate maxParticipants
     if (maxParticipants && (!Number.isInteger(maxParticipants) || maxParticipants < 1)) {
       return new NextResponse('Invalid maximum participants', { status: 400 })
+    }
+
+    // Check if a live session is already in progress
+    const existingLiveSession = await db.course.findFirst({
+      where: {
+        id: courseId,
+        isLiveActive: true
+      }
+    })
+
+    if (existingLiveSession) {
+      return new NextResponse('Live session already in progress', { status: 400 })
     }
 
     const course = await db.course.findFirst({
