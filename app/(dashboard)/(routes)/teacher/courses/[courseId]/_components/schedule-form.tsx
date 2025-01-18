@@ -94,7 +94,7 @@ export const ScheduleForm = ({
       }
       // Calculate scheduledDate for each entry based on nextLiveDate and time
       const schedulesWithDates = schedules.map((entry, index) => {
-        const [hours, minutes] = entry.time.split(':').map(Number);
+        const [hours, minutes] = entry.time.split(':').map(Number)
         const scheduleDate = new Date(nextLiveDate!)
         // Set time in UTC+8 (Asia/Singapore)
         scheduleDate.setHours(hours)
