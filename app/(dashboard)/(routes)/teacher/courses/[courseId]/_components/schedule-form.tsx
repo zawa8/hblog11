@@ -41,7 +41,7 @@ export const ScheduleForm = ({
           Please set the next live session date first in the Live Course Settings above.
         </div>
       </div>
-    );
+    )
   }
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -77,41 +77,38 @@ export const ScheduleForm = ({
 
       // Check for empty fields and collect them
       const emptyFields = schedules.reduce((acc: string[], entry, index) => {
-        const missing = [];
-        if (!entry.time) missing.push('time');
-        if (!entry.topic) missing.push('topic');
-        if (!entry.speaker) missing.push('speaker');
+        const missing = []
+        if (!entry.time) missing.push('time')
+        if (!entry.topic) missing.push('topic')
+        if (!entry.speaker) missing.push('speaker')
         if (missing.length > 0) {
-          acc.push(`Entry ${index + 1}: ${missing.join(', ')}`);
+          acc.push(`Entry ${index + 1}: ${missing.join(', ')}`)
         }
-        return acc;
-      }, []);
+        return acc
+      }, [])
 
       if (emptyFields.length > 0) {
-        toast.error(`Please fill in all required fields:\n${emptyFields.join('\n')}`);
-        return;
+        toast.error(`Please fill in all required fields:\n${emptyFields.join('\n')}`)
+        return
       }
-      
       // Calculate scheduledDate for each entry based on nextLiveDate and time
       const schedulesWithDates = schedules.map((entry, index) => {
         const [hours, minutes] = entry.time.split(':').map(Number);
-        const scheduleDate = new Date(nextLiveDate!);
-        
+        const scheduleDate = new Date(nextLiveDate!)
         // Set time in UTC+8 (Asia/Singapore)
-        scheduleDate.setHours(hours);
-        scheduleDate.setMinutes(minutes);
-        
+        scheduleDate.setHours(hours)
+        scheduleDate.setMinutes(minutes)
         return {
           topic: entry.topic,
           speaker: entry.speaker,
           position: index,
           scheduledDate: scheduleDate.toISOString()
-        };
-      });
+        }
+      })
 
       await axios.put(`/api/courses/${courseId}/schedules`, {
         schedules: schedulesWithDates
-      });
+      })
       toast.success('Schedule updated')
       router.refresh()
     } catch {

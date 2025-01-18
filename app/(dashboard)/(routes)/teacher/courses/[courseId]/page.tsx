@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import { CircleDollarSign, File, LayoutDashboard, ListChecks } from 'lucide-react'
-import { db } from '@/lib/db'
 import { toZonedTime } from 'date-fns-tz'
+import { db } from '@/lib/db'
 import { IconBadge } from '@/components/icon-badge'
 import { TitleForm } from './_components/title-form'
 import { DescriptionForm } from './_components/description-form'
@@ -89,26 +89,25 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
   // Fetch schedules separately
   type ScheduleWithDateObj = Omit<Schedule, 'scheduledDate'> & { scheduledDate: Date };
-  
   const schedules = course ? await db.$queryRaw<ScheduleWithDateObj>`
     SELECT * FROM "Schedule"
     WHERE "courseId" = ${course.id}
     ORDER BY position ASC
   `.then((results: ScheduleWithDateObj[]) => results.map((schedule: ScheduleWithDateObj) => {
     // Convert to Asia/Singapore timezone
-    const zonedDate = toZonedTime(schedule.scheduledDate, 'Asia/Singapore');
+    const zonedDate = toZonedTime(schedule.scheduledDate, 'Asia/Singapore')
     return {
       ...schedule,
       scheduledDate: zonedDate.toISOString()
-    };
+    }
   })) : []
 
   if (course) {
     // Convert nextLiveDate to Asia/Singapore timezone if it exists
     if (course.nextLiveDate) {
-      course.nextLiveDate = toZonedTime(course.nextLiveDate, 'Asia/Singapore');
+      course.nextLiveDate = toZonedTime(course.nextLiveDate, 'Asia/Singapore')
     }
-    course.schedules = schedules;
+    course.schedules = schedules
   }
 
   if (!course) {

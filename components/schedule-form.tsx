@@ -30,7 +30,7 @@ export const ScheduleForm = ({
       <div className="text-sm text-muted-foreground">
         Please set the next live session date first.
       </div>
-    );
+    )
   }
   const [schedule, setSchedule] = useState<ScheduleEntry[]>(initialSchedule)
 
@@ -49,26 +49,22 @@ export const ScheduleForm = ({
   const updateEntry = (index: number, field: keyof ScheduleEntry, value: string) => {
     const newSchedule = schedule.map((entry, i) => {
       if (i === index) {
-        const updatedEntry = { ...entry, [field]: value };
-        
+        const updatedEntry = { ...entry, [field]: value }
         // If time is being updated, validate it's not before the nextLiveDate
         if (field === 'time' && value) {
-          const [hours, minutes] = value.split(':').map(Number);
-          const scheduleDate = new Date(nextLiveDate);
-          scheduleDate.setHours(hours, minutes);
-          
+          const [hours, minutes] = value.split(':').map(Number)
+          const scheduleDate = new Date(nextLiveDate)
+          scheduleDate.setHours(hours, minutes)
           if (scheduleDate < nextLiveDate) {
-            return entry; // Don't update if time is before nextLiveDate
+            return entry // Don't update if time is before nextLiveDate
           }
         }
-        
-        return updatedEntry;
+        return updatedEntry
       }
-      return entry;
-    });
-    
-    setSchedule(newSchedule);
-    onScheduleChange(newSchedule);
+      return entry
+    })
+    setSchedule(newSchedule)
+    onScheduleChange(newSchedule)
   }
 
   return (

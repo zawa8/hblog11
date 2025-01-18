@@ -35,7 +35,7 @@ const formSchema = z.object({
   nextLiveDate: z.string().min(1, {
     message: 'Next live session date is required',
   }),
-});
+})
 
 export const LiveSettingsForm = ({
   initialData,
