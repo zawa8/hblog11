@@ -67,7 +67,6 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
               const now = new Date()
               const scheduleDate = new Date(course.nextSchedule.scheduledDate)
               const isWithin10Minutes = now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10
-              
               return course.isCourseLive ? (
                 <Link key={course.id} href={`/courses/${course.id}/live`}>
                   <Button variant="destructive" className="flex items-center gap-x-2">
@@ -77,7 +76,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 </Link>
               ) : (
                 <Link key={course.id} href={`/courses/${course.id}/live`}>
-                  <Button 
+                  <Button
                     disabled={!isWithin10Minutes}
                     className="flex items-center gap-x-2"
                   >

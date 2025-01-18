@@ -1,19 +1,18 @@
 'use client'
 
 import { Course, Schedule } from '@prisma/client'
-
-type CourseWithSchedule = Course & {
-  nextSchedule: Schedule | null
-}
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal, Pencil, RadioTower, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
-
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+
+type CourseWithSchedule = Course & {
+  nextSchedule: Schedule | null
+}
 
 export const columns: ColumnDef<CourseWithSchedule>[] = [
   {
@@ -79,7 +78,6 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
     cell: ({ row }) => {
       const courseType = row.getValue('courseType') as 'RECORDED' | 'LIVE'
       const schedule = row.original.nextSchedule
-      
       if (courseType !== 'LIVE') {
         return null
       }
@@ -123,7 +121,7 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
       const now = new Date()
       const scheduleDate = nextSchedule ? new Date(nextSchedule.scheduledDate) : null
       const isWithin10Minutes = scheduleDate && 
-        now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10 // 10 minutes before
+      now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10 // 10 minutes before
       const isCourseLive = row.original.isCourseLive
 
       return (

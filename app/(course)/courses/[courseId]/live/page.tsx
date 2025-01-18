@@ -10,8 +10,6 @@ import toast from 'react-hot-toast'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { LiveClassroom } from '@/components/live-classroom'
-
 interface Schedule {
   id: string;
   topic: string;
@@ -187,7 +185,7 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
                 <h3 className="font-semibold">Live Session Controls</h3>
                 <Button
                   size="lg"
-                  variant={course.isCourseLive ? "destructive" : "default"}
+                  variant={course.isCourseLive ? 'destructive' : 'default'}
                   disabled={isLoading}
                   onClick={() => router.push(`/courses/${params.courseId}/live`)}
                 >
