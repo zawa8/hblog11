@@ -34,6 +34,7 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
         isLiveActive: true,
         maxParticipants: true,
         chapters: true,
+        nextLiveDate: true,
         schedules: {
           select: { 
             id: true,
@@ -67,13 +68,19 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
           teacher = null;
         }
 
-        // Get the next schedule (already filtered and sorted by the database query)
-        const nextLiveDate = course.schedules[0]?.scheduledDate || null;
+        // Combine nextLiveDate with first schedule's time
+        const combinedNextLiveDate = course.nextLiveDate && course.schedules[0]?.scheduledDate ? (() => {
+          const date = new Date(course.nextLiveDate);
+          const firstScheduleTime = new Date(course.schedules[0].scheduledDate);
+          date.setHours(firstScheduleTime.getHours());
+          date.setMinutes(firstScheduleTime.getMinutes());
+          return date;
+        })() : null;
 
         return {
           ...course,
           progress: progressPercentage,
-          nextLiveDate: nextLiveDate,
+          nextLiveDate: combinedNextLiveDate,
           teacher: {
             name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
             image: teacher?.imageUrl || '/placeholder-avatar.png'

@@ -47,7 +47,7 @@ export const LiveSettingsForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       maxParticipants: initialData?.maxParticipants || undefined,
-      nextLiveDate: initialData?.nextLiveDate ? format(new Date(initialData.nextLiveDate), "yyyy-MM-dd'T'HH:mm") : undefined,
+      nextLiveDate: initialData?.nextLiveDate ? format(new Date(initialData.nextLiveDate), "yyyy-MM-dd") : undefined,
     },
   })
 
@@ -55,9 +55,13 @@ export const LiveSettingsForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // Set the time to start of day since we only care about the date
+      const date = new Date(values.nextLiveDate);
+      date.setHours(0, 0, 0, 0);
+      
       await axios.patch(`/api/courses/${courseId}`, {
         ...values,
-        nextLiveDate: new Date(values.nextLiveDate)
+        nextLiveDate: date
       })
       toast.success('Course updated')
       router.refresh()
@@ -96,7 +100,7 @@ export const LiveSettingsForm = ({
       <div>
         <div className="mt-1">
           Next Live Session: {initialData.nextLiveDate
-            ? format(new Date(initialData.nextLiveDate), 'PPpp')
+            ? format(new Date(initialData.nextLiveDate), 'PPP')
             : 'Not scheduled'}
         </div>
         {initialData.nextLiveDate && (
@@ -130,12 +134,15 @@ export const LiveSettingsForm = ({
                     <FormItem>
                       <FormControl>
                         <Input
-                          type="datetime-local"
+                          type="date"
                           disabled={isSubmitting}
                           {...field}
                         />
                       </FormControl>
                       <FormMessage />
+                      <p className="text-xs text-muted-foreground">
+                        Select the date for the live session. The time will be specified in the Course Schedule section.
+                      </p>
                     </FormItem>
                   )}
                 />

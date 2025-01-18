@@ -73,6 +73,13 @@ const CreatePage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // For live courses, set the time to start of day since we only care about the date
+      if (values.courseType === 'LIVE' && values.nextLiveDate) {
+        const date = new Date(values.nextLiveDate)
+        date.setHours(0, 0, 0, 0)
+        values.nextLiveDate = date.toISOString()
+      }
+
       const response = await axios.post('/api/courses', values)
       router.push(`/teacher/courses/${response.data.id}`)
       toast.success('Course created')
@@ -182,15 +189,15 @@ const CreatePage = () => {
                   name='nextLiveDate'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Next Live Session Date & Time</FormLabel>
+                      <FormLabel>Next Live Session Date</FormLabel>
                       <FormControl>
                         <Input
-                          type="datetime-local"
+                          type="date"
                           disabled={isSubmitting}
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>When will the first live session take place?</FormDescription>
+                      <FormDescription>Select the date for the live session. You will specify the time in the Course Schedule section after creation.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
