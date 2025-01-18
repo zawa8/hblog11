@@ -94,11 +94,11 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
       SELECT * FROM "Schedule"
       WHERE "courseId" = ${course.id}
       ORDER BY position ASC
-    `;
+    `
     return rawSchedules.map((schedule: ScheduleWithDateObj) => ({
       ...schedule,
       scheduledDate: toZonedTime(schedule.scheduledDate, 'Asia/Singapore').toISOString()
-    }));
+    }))
   })() : []
 
   if (course) {
