@@ -25,6 +25,8 @@ export const ScheduleForm = ({
   isSaving,
   nextLiveDate,
 }: ScheduleFormProps) => {
+  const [schedule, setSchedule] = useState<ScheduleEntry[]>(initialSchedule)
+
   if (!nextLiveDate) {
     return (
       <div className="text-sm text-muted-foreground">
@@ -32,7 +34,6 @@ export const ScheduleForm = ({
       </div>
     )
   }
-  const [schedule, setSchedule] = useState<ScheduleEntry[]>(initialSchedule)
 
   const addEntry = () => {
     const newSchedule = [...schedule, { time: '', topic: '', speaker: '', isSaving: false }]

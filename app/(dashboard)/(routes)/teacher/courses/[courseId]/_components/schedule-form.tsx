@@ -34,15 +34,6 @@ export const ScheduleForm = ({
   initialSchedules = [],
   nextLiveDate,
 }: ScheduleFormProps) => {
-  if (!nextLiveDate) {
-    return (
-      <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
-        <div className="text-sm text-muted-foreground">
-          Please set the next live session date first in the Live Course Settings above.
-        </div>
-      </div>
-    )
-  }
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [schedules, setSchedules] = useState<ScheduleInput[]>(
@@ -52,6 +43,16 @@ export const ScheduleForm = ({
       speaker: schedule.speaker
     })) || []
   )
+
+  if (!nextLiveDate) {
+    return (
+      <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
+        <div className="text-sm text-muted-foreground">
+          Please set the next live session date first in the Live Course Settings above.
+        </div>
+      </div>
+    )
+  }
 
   const addEntry = () => {
     setSchedules([...schedules, { time: '', topic: '', speaker: '' }])
