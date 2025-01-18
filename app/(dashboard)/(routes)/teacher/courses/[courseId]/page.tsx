@@ -89,18 +89,17 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
 
   // Fetch schedules separately
   type ScheduleWithDateObj = Omit<Schedule, 'scheduledDate'> & { scheduledDate: Date };
-  const schedules = course ? await db.$queryRaw<ScheduleWithDateObj>`
-    SELECT * FROM "Schedule"
-    WHERE "courseId" = ${course.id}
-    ORDER BY position ASC
-  `.then((results: ScheduleWithDateObj[]) => results.map((schedule) => {
-    // Convert to Asia/Singapore timezone
-    const zonedDate = toZonedTime(schedule.scheduledDate, 'Asia/Singapore')
-    return {
+  const schedules = course ? await (async () => {
+    const rawSchedules = await db.$queryRaw<ScheduleWithDateObj[]>`
+      SELECT * FROM "Schedule"
+      WHERE "courseId" = ${course.id}
+      ORDER BY position ASC
+    `;
+    return rawSchedules.map((schedule: ScheduleWithDateObj) => ({
       ...schedule,
-      scheduledDate: zonedDate.toISOString()
-    }
-  })) : []
+      scheduledDate: toZonedTime(schedule.scheduledDate, 'Asia/Singapore').toISOString()
+    }));
+  })() : []
 
   if (course) {
     // Convert nextLiveDate to Asia/Singapore timezone if it exists
