@@ -93,7 +93,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
     SELECT * FROM "Schedule"
     WHERE "courseId" = ${course.id}
     ORDER BY position ASC
-  `.then((results: ScheduleWithDateObj[]) => results.map((schedule: ScheduleWithDateObj) => {
+  `.then((results: ScheduleWithDateObj[]) => results.map((schedule) => {
     // Convert to Asia/Singapore timezone
     const zonedDate = toZonedTime(schedule.scheduledDate, 'Asia/Singapore')
     return {
