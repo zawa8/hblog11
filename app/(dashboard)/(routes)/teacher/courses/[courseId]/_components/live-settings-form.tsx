@@ -47,7 +47,7 @@ export const LiveSettingsForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       maxParticipants: initialData?.maxParticipants || undefined,
-      nextLiveDate: initialData?.nextLiveDate ? format(new Date(initialData.nextLiveDate), "yyyy-MM-dd") : undefined,
+      nextLiveDate: initialData?.nextLiveDate ? format(new Date(initialData.nextLiveDate), 'yyyy-MM-dd') : undefined,
     },
   })
 
@@ -56,9 +56,8 @@ export const LiveSettingsForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       // Set the time to start of day since we only care about the date
-      const date = new Date(values.nextLiveDate);
-      date.setHours(0, 0, 0, 0);
-      
+      const date = new Date(values.nextLiveDate)
+      date.setHours(0, 0, 0, 0)
       await axios.patch(`/api/courses/${courseId}`, {
         ...values,
         nextLiveDate: date

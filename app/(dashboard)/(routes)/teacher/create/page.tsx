@@ -189,7 +189,7 @@ const CreatePage = () => {
                   name='nextLiveDate'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Next Live Session Date</FormLabel>
+                      <FormLabel>Live Session Date</FormLabel>
                       <FormControl>
                         <Input
                           type="date"
