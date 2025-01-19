@@ -1,6 +1,6 @@
 'use client'
 
-import { Course, Schedule } from '@prisma/client'
+import { Schedule, Prisma } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal, Pencil, RadioTower, Calendar } from 'lucide-react'
 import Link from 'next/link'
@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-
-import { Prisma } from '@prisma/client'
 
 type CourseProperties = {
   isCourseLive: boolean;

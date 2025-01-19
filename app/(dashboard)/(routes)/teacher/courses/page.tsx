@@ -1,10 +1,8 @@
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
-import { Schedule } from '@prisma/client'
 import { db } from '@/lib/db'
 import { DataTable } from './_component/data-table'
-import { columns } from './_component/columns'
-import { CourseWithSchedule } from './_component/columns'
+import { columns, CourseWithSchedule } from './_component/columns'
 export default async function Courses() {
   const { userId } = auth()
 
