@@ -155,8 +155,13 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   return (
     <div className='flex flex-col space-y-8'>
       {/* Live Stream Section */}
-      <div className='space-y-4'>
-        {isTeacher && (
+      {isInitialLoading ? (
+        <div className="flex items-center justify-center h-[300px]">
+          <p className="text-slate-500">Loading...</p>
+        </div>
+      ) : (
+        <div className='space-y-4'>
+          {isTeacher && (
           <div className='flex items-center gap-x-2 mb-4'>
             {!isLive && (
               <Button
@@ -206,9 +211,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
               </p>
             </div>
           )}
+          </div>
         </div>
-
-      </div>
+      )}
 
       {/* Past Recordings Section */}
       {recordings.length > 0 && (
