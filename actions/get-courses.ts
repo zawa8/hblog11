@@ -86,9 +86,9 @@ export async function getCourses({
             json_agg(
               DISTINCT jsonb_build_object(
                 'id', s.id,
-                'scheduledDate', s.scheduled_date
+                'scheduledDate', s."scheduledDate"
               )
-            ) FILTER (WHERE s.id IS NOT NULL AND s.scheduled_date >= NOW()),
+            ) FILTER (WHERE s.id IS NOT NULL AND s."scheduledDate" >= NOW()),
             '[]'
           ) AS jsonb
         ) as schedules,
