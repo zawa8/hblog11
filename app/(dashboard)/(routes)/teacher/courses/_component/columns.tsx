@@ -132,7 +132,6 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
     cell: ({ row }) => {
       const courseType = row.getValue('courseType') as 'RECORDED' | 'LIVE'
       const purchases = row.original.purchases || []
-      
       if (courseType === 'LIVE') {
         const bookedSeats = purchases.filter(p => p.isBooked).length
         return (
