@@ -24,7 +24,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
   const [isLive, setIsLive] = useState(false)
-  const [setIsInitialLoading] = useState(true)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
 
   useEffect(() => {
     const checkLiveStatus = async () => {
