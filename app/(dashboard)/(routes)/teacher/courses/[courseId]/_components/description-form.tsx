@@ -9,13 +9,14 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { Course } from '@prisma/client'
+import { CourseWithRelations } from '@/types'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
 
 interface DescriptionFormProps {
-  initialData: Course
+  initialData: Course | CourseWithRelations
   courseId: string
 }
 

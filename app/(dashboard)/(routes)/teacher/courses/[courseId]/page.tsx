@@ -16,65 +16,7 @@ import { LiveSettingsForm } from './_components/live-settings-form'
 import { Banner } from '@/components/banner'
 import Actions from './_components/actions'
 
-interface Schedule {
-  id: string;
-  topic: string;
-  speaker: string;
-  position: number;
-  courseId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  scheduledDate: string;
-}
-
-type CourseWithRelations = {
-  id: string;
-  createdById: string;
-  title: string;
-  description: string | null;
-  imageUrl: string | null;
-  price: number | null;
-  isPublished: boolean;
-  categoryId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  agoraChannelName: string | null;
-  agoraToken: string | null;
-  courseType: 'RECORDED' | 'LIVE';
-  isLiveActive: boolean;
-  nextLiveDate: Date | null;
-  maxParticipants: number | null;
-  attachments: Array<{
-    id: string;
-    name: string;
-    url: string;
-    courseId: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }>;
-  chapters: Array<{
-    id: string;
-    title: string;
-    description: string | null;
-    videoUrl: string | null;
-    position: number;
-    isPublished: boolean;
-    isFree: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    courseId: string;
-    endTime: Date | null;
-    speaker: string | null;
-    startTime: Date | null;
-    topic: string | null;
-    muxData: {
-      id: string;
-      assetId: string;
-      playbackId: string | null;
-    } | null;
-  }>;
-  schedules: Schedule[];
-}
+import { CourseWithRelations, Schedule } from '@/types'
 
 const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   const { userId } = auth()
@@ -86,31 +28,13 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
   const course = await db.course.findUnique({
     where: { id: params.courseId, createdById: userId },
     include: {
-      attachments: { orderBy: { createdAt: 'desc' } },
+      attachments: {
+        orderBy: { createdAt: 'desc' }
+      },
       chapters: {
         orderBy: { position: 'asc' },
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          videoUrl: true,
-          position: true,
-          isPublished: true,
-          isFree: true,
-          createdAt: true,
-          updatedAt: true,
-          courseId: true,
-          endTime: true,
-          speaker: true,
-          startTime: true,
-          topic: true,
-          muxData: {
-            select: {
-              id: true,
-              assetId: true,
-              playbackId: true
-            }
-          }
+        include: {
+          muxData: true
         }
       }
     }
@@ -124,10 +48,18 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
       WHERE "courseId" = ${course.id}
       ORDER BY position ASC
     `
-    return rawSchedules.map((schedule: ScheduleWithDateObj) => ({
-      ...schedule,
-      scheduledDate: toZonedTime(schedule.scheduledDate, 'Asia/Singapore').toISOString()
-    }))
+    return rawSchedules.map((schedule: ScheduleWithDateObj) => {
+      return {
+        id: schedule.id,
+        topic: schedule.topic,
+        speaker: schedule.speaker,
+        position: schedule.position,
+        courseId: schedule.courseId,
+        createdAt: schedule.createdAt,
+        updatedAt: schedule.updatedAt,
+        scheduledDate: toZonedTime(schedule.scheduledDate, 'Asia/Singapore').toISOString()
+      }
+    })
   })() : []
 
   if (course) {
