@@ -72,7 +72,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                   <Button
                     disabled={!isWithin10Minutes}
                     className="flex items-center gap-x-2"
-                    title={!isWithin10Minutes ? "Available 10 mins before start" : undefined}
+                    title={!isWithin10Minutes ? 'Available 10 mins before start' : undefined}
                   >
                     <RadioTower className="h-4 w-4" />
                     Start Live Session
