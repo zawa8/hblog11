@@ -15,6 +15,7 @@ type CourseWithPurchases = {
   createdById: string;
   agoraChannelName: string | null;
   maxParticipants: number | null;
+  isCourseLive: boolean;
   purchases: Array<{ id: string }>;
 };
 interface LiveSessionRequest {

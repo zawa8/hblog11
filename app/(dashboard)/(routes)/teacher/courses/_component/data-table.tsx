@@ -19,14 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-interface Course {
-  id: string
-  courseType: 'RECORDED' | 'LIVE'
-  isCourseLive: boolean
-  nextSchedule: {
-    scheduledDate: Date
-  } | null
-}
+import { CourseWithSchedule } from './columns'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -62,7 +55,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           className="max-w-sm"
         />
         <div className="flex items-center gap-x-2">
-          {(data as Course[]).map((course) => {
+          {(data as CourseWithSchedule[]).map((course) => {
             if (course.courseType === 'LIVE' && course.nextSchedule) {
               const now = new Date()
               const scheduleDate = new Date(course.nextSchedule.scheduledDate)

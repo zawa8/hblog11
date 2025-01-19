@@ -4,30 +4,7 @@ import { Schedule } from '@prisma/client'
 import { db } from '@/lib/db'
 import { DataTable } from './_component/data-table'
 import { columns } from './_component/columns'
-interface Course {
-  id: string
-  createdById: string
-  title: string
-  description: string | null
-  imageUrl: string | null
-  price: number | null
-  isPublished: boolean
-  categoryId: string | null
-  createdAt: Date
-  updatedAt: Date
-  agoraChannelName: string | null
-  agoraToken: string | null
-  courseType: 'RECORDED' | 'LIVE'
-  isLiveActive: boolean
-  isCourseLive: boolean
-  nextLiveDate: Date | null
-  maxParticipants: number | null
-  schedules: Schedule[]
-}
-
-type CourseWithSchedule = Course & {
-  nextSchedule: Schedule | null
-}
+import { CourseWithSchedule } from './_component/columns'
 export default async function Courses() {
   const { userId } = auth()
 
@@ -56,8 +33,8 @@ export default async function Courses() {
   // Transform the data to include nextSchedule directly on the course object
   const transformedCourses: CourseWithSchedule[] = courses.map(course => ({
     ...course,
-    isCourseLive: false,
-    nextSchedule: course.schedules[0] || null
+    nextSchedule: course.schedules[0] || null,
+    isCourseLive: (course as any).isCourseLive || false
   }))
 
   return (

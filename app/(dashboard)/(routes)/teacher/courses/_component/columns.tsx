@@ -10,9 +10,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
-type CourseWithSchedule = Course & {
-  nextSchedule: Schedule | null
+import { Prisma } from '@prisma/client'
+
+type CourseProperties = {
+  isCourseLive: boolean;
+  nextSchedule: Schedule | null;
+  schedules: Schedule[];
 }
+
+export type CourseWithSchedule = Prisma.CourseGetPayload<{}> & CourseProperties;
 
 export const columns: ColumnDef<CourseWithSchedule>[] = [
   {
