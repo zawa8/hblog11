@@ -132,6 +132,7 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
     cell: ({ row }) => {
       const courseType = row.getValue('courseType') as 'RECORDED' | 'LIVE'
       const purchases = row.original.purchases || []
+      
       if (courseType === 'LIVE') {
         const bookedSeats = purchases.filter(p => p.isBooked).length
         return (
@@ -187,14 +188,12 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
                 </Link>
               ) : (
                 <Link href={`/courses/${id}/live`}>
-                  <DropdownMenuItem disabled={!isWithin10Minutes}>
+                  <DropdownMenuItem 
+                    disabled={!isWithin10Minutes}
+                    title={!isWithin10Minutes ? "Available 10 mins before start" : undefined}
+                  >
                     <RadioTower className="mr-2 h-4 w-4" />
                     Start Live Session
-                    {!isWithin10Minutes && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        (Available 10 mins before start)
-                      </span>
-                    )}
                   </DropdownMenuItem>
                 </Link>
               )
