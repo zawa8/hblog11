@@ -1,6 +1,6 @@
 'use client'
 
-import { Schedule, Prisma } from '@prisma/client'
+import { Schedule, Prisma, Purchase } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal, Pencil, RadioTower, Calendar } from 'lucide-react'
 import Link from 'next/link'
@@ -14,6 +14,7 @@ type CourseProperties = {
   isCourseLive: boolean;
   nextSchedule: Schedule | null;
   schedules: Schedule[];
+  purchases: Purchase[];
 }
 
 export type CourseWithSchedule = Prisma.CourseGetPayload<{}> & CourseProperties;
@@ -116,6 +117,40 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
       return (
         <Badge className={cn('bg-slate-500', isPublished && 'bg-sky-700')}>{isPublished ? 'Published' : 'Draft'}</Badge>
       )
+    },
+  },
+  {
+    accessorKey: 'purchases',
+    header: ({ column }) => {
+      return (
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Enrollment
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const courseType = row.getValue('courseType') as 'RECORDED' | 'LIVE'
+      const purchases = row.original.purchases || []
+      
+      if (courseType === 'LIVE') {
+        const bookedSeats = purchases.filter(p => p.isBooked).length
+        return (
+          <div className="flex items-center">
+            <Badge variant="secondary">
+              {bookedSeats} Seats Booked
+            </Badge>
+          </div>
+        )
+      } else {
+        return (
+          <div className="flex items-center">
+            <Badge variant="secondary">
+              {purchases.length} Enrolled
+            </Badge>
+          </div>
+        )
+      }
     },
   },
   {

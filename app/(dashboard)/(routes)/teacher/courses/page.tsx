@@ -24,7 +24,8 @@ export default async function Courses() {
           scheduledDate: 'asc'
         },
         take: 1
-      }
+      },
+      purchases: true
     }
   })
 
@@ -32,7 +33,8 @@ export default async function Courses() {
   const transformedCourses: CourseWithSchedule[] = courses.map(course => ({
     ...course,
     nextSchedule: course.schedules[0] || null,
-    isCourseLive: (course as any).isCourseLive || false
+    isCourseLive: (course as any).isCourseLive || false,
+    purchases: course.purchases || []
   }))
 
   return (
