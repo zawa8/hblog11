@@ -6,7 +6,6 @@ import { VideoPlayer } from './_components/video-player'
 import { LiveClassroom } from '@/components/live-classroom'
 import { getChapter } from '@/actions/get-chapter'
 import CourseEnrollButton from './_components/course-enroll-button'
-import { Separator } from '@/components/ui/separator'
 import { CourseProgressButton } from './_components/course-progress-button'
 import CourseSidebar from '../../_components/course-sidebar'
 export default async function ChapterDetails({ params }: { params: { courseId: string; chapterId: string } }) {
@@ -31,15 +30,14 @@ const isLiveCourse = course.courseType === 'LIVE'
 
   return (
     <div className="p-6">
-      <div className="mb-4">
+          <div className="mb-4">
         {userProgress?.isCompleted ? <Banner label="You already completed this chapter" variant="success" /> : null}
         {isLocked ? <Banner label="You need to purchase this course to watch this chapter" /> : null}
       </div>
-      
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
         <div className="md:col-span-3">
           <h2 className="text-2xl font-bold mb-4">{chapter.title}</h2>
-          <div className="mb-4">
+          <div className="mb-4 rounded-xl overflow-hidden">
             {isLiveCourse ? (
               <LiveClassroom
                 courseId={params.courseId}
@@ -57,7 +55,6 @@ const isLiveCourse = course.courseType === 'LIVE'
               />
             )}
           </div>
-          
           <div className="mt-4">
             <Preview value={chapter.description!} />
           </div>
