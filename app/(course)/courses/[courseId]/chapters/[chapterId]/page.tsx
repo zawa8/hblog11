@@ -30,74 +30,83 @@ export default async function ChapterDetails({ params }: { params: { courseId: s
 const isLiveCourse = course.courseType === 'LIVE'
 
   return (
-    <div className="flex flex-row-reverse">
-      <div className="hidden lg:block w-[400px]">
-        <CourseSidebar course={course} progressCount={progressCount} />
-      </div>
-      <div className="flex-1">
+    <div className="p-6">
+      <div className="mb-4">
         {userProgress?.isCompleted ? <Banner label="You already completed this chapter" variant="success" /> : null}
         {isLocked ? <Banner label="You need to purchase this course to watch this chapter" /> : null}
-
-        <div className="mx-auto flex max-w-4xl flex-col pb-20">
-        <div className="p-4">
-          {isLiveCourse ? (
-            <LiveClassroom
-              courseId={params.courseId}
-              isTeacher={isTeacher}
-            />
-          ) : (
-            <VideoPlayer
-              chapterId={chapter.id}
-              title={chapter.title}
-              courseId={params.courseId}
-              nextChapterId={nextChapter?.id}
-              playbackId={muxData?.playbackId!}
-              isLocked={isLocked}
-              completeOnEnd={completedOnEnd}
-            />
-          )}
-        </div>
-
-        <div>
-          <div className="flex flex-col items-center justify-between p-4 md:flex-row">
-            <h2 className="mb-2 text-2xl font-semibold">{chapter.title}</h2>
-            {purchase ? (
-              <CourseProgressButton
-                chapterId={params.chapterId}
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="md:col-span-3">
+          <h2 className="text-2xl font-bold mb-4">{chapter.title}</h2>
+          <div className="mb-4">
+            {isLiveCourse ? (
+              <LiveClassroom
                 courseId={params.courseId}
-                nextChapterId={nextChapter?.id}
-                isCompleted={!!userProgress?.isCompleted}
+                isTeacher={isTeacher}
               />
             ) : (
-              <CourseEnrollButton courseId={params.courseId} price={course.price!} />
+              <VideoPlayer
+                chapterId={chapter.id}
+                title={chapter.title}
+                courseId={params.courseId}
+                nextChapterId={nextChapter?.id}
+                playbackId={muxData?.playbackId!}
+                isLocked={isLocked}
+                completeOnEnd={completedOnEnd}
+              />
+            )}
+          </div>
+          
+          <div className="mt-4">
+            <Preview value={chapter.description!} />
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <div className="bg-white shadow-lg rounded-xl p-6 mb-6 border-2 border-blue-100">
+            {purchase ? (
+              <div>
+                <CourseProgressButton
+                  chapterId={params.chapterId}
+                  courseId={params.courseId}
+                  nextChapterId={nextChapter?.id}
+                  isCompleted={!!userProgress?.isCompleted}
+                />
+              </div>
+            ) : (
+              <div>
+                <div className="mb-4 text-center">
+                  <div className="text-2xl font-bold text-blue-600 mb-1">
+                    MYR {course.price}
+                  </div>
+                  <div className="text-sm text-slate-500">One-time payment</div>
+                </div>
+                <CourseEnrollButton courseId={params.courseId} price={course.price!} />
+              </div>
             )}
           </div>
 
-          <Separator />
+          <CourseSidebar course={course} progressCount={progressCount} />
 
-          <div>
-            <Preview value={chapter.description!} />
-          </div>
-
-          {attachments.length ? (
-            <>
-              <Separator />
-              <div className="p-4">
-                  {attachments.map((attachment: { id: string; name: string; url: string }) => (
+          {attachments.length > 0 && (
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold mb-4">Chapter Materials</h2>
+              <div className="space-y-2">
+                {attachments.map((attachment) => (
                   <a
-                    className="flex w-full items-center rounded-md border bg-sky-200 p-3 text-sky-700 hover:underline"
                     key={attachment.id}
+                    href={attachment.url}
                     target="_blank"
-href={attachment.url}
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
+                    className="flex items-center p-3 bg-sky-100 border border-sky-200 rounded-md hover:bg-sky-200 transition"
                   >
                     {attachment.name}
                   </a>
                 ))}
               </div>
-            </>
-          ) : null}
-        </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
