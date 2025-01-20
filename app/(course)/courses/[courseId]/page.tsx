@@ -83,7 +83,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
               </div>
             )}
             <div className={`px-3 py-2 rounded font-medium ${
-              typedCourse.courseType === 'LIVE' 
+              typedCourse.courseType === 'LIVE'
                 ? 'bg-blue-100 text-blue-700'
                 : 'bg-purple-100 text-purple-700'
             }`}>
@@ -114,7 +114,7 @@ const CourseIdPage = async ({ params }: { params: { courseId: string } }) => {
             ) : typedCourse.chapters[0] ? (
               <div>
                 <div className="mb-4 text-center">
-                  <div className="text-lg font-semibold text-green-600 mb-1">You're enrolled!</div>
+                  <div className="text-lg font-semibold text-green-600 mb-1">You&apos;re enrolled!</div>
                 </div>
                 <a
                   href={`/courses/${typedCourse.id}/chapters/${typedCourse.chapters[0].id}`}
