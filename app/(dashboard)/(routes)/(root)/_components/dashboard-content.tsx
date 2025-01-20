@@ -40,7 +40,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
         fullName={initialData.fullName}
         completedCourses={initialData.completedCourses}
         coursesInProgress={initialData.coursesInProgress}
-        upcomingLiveCount={initialData.upcomingLiveCourses.length}
+        upcomingLiveCount={initialData.upcomingLiveCount}
         onFilterChange={setActiveFilter}
         activeFilter={activeFilter}
       />

@@ -65,9 +65,9 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
             json_agg(
               DISTINCT jsonb_build_object(
                 'id', s.id,
-                'scheduledDate', s.scheduled_date
+                'scheduledDate', s."scheduledDate"
               )
-            ) FILTER (WHERE s.id IS NOT NULL AND s.scheduled_date >= NOW()),
+            ) FILTER (WHERE s.id IS NOT NULL AND s."scheduledDate" > ${now}),
             '[]'
           ) AS jsonb
         ) as schedules,
@@ -82,13 +82,23 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
       FROM "Course" c
       LEFT JOIN "Category" cat ON c."categoryId" = cat.id
       LEFT JOIN "Chapter" ch ON ch."courseId" = c.id AND ch."isPublished" = true
-      LEFT JOIN "Schedule" s ON s."courseId" = c.id
+      LEFT JOIN "Schedule" s ON s."courseId" = c.id AND s."scheduledDate" > ${now}
       LEFT JOIN "Purchase" p ON p."courseId" = c.id AND p."userId" = ${userId}
       WHERE c."courseType" = 'LIVE'
+      AND c."isCourseLive" = false
+      AND c."isPublished" = true
       AND EXISTS (
         SELECT 1 FROM "Purchase" 
         WHERE "courseId" = c.id 
         AND "userId" = ${userId}
+      )
+      AND (
+        c."nextLiveDate" > ${now}
+        OR EXISTS (
+          SELECT 1 FROM "Schedule"
+          WHERE "courseId" = c.id
+          AND "scheduledDate" > ${now}
+        )
       )
       GROUP BY c.id, cat.id, cat.name
       ORDER BY c."createdAt" DESC
