@@ -113,24 +113,27 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
   const course = courseData!
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      {/* Live Video Section */}
-      <div className="mb-8">
-        <div className="relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-slate-400">
-              {course.createdById === userId
-                ? 'Click Start Live Session to begin streaming'
-                : 'Waiting for teacher to start the live stream'}
-            </p>
+    <div className="p-6">
+      {/* Live Video Section - Only visible to enrolled users and course creator */}
+      {(course.createdById === userId || course.purchases.some(p => p.userId === userId)) && (
+        <div className="mb-8">
+          <div className="relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-slate-400">
+                {course.createdById === userId
+                  ? 'Click Start Live Session to begin streaming'
+                  : 'Waiting for teacher to start the live stream'}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Left Column - Course Details */}
-        <div className="flex-1">
-          <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        {/* Left Column - Title, Image, and Description */}
+        <div className="md:col-span-3">
+          <h1 className="text-2xl font-bold mb-4">{course.title}</h1>
+          <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
             <Image
               src={course.imageUrl || '/placeholder.jpg'}
               alt={course.title}
@@ -138,21 +141,27 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
               className="object-cover"
             />
           </div>
-          <h1 className="text-2xl font-bold mb-2">{course.title}</h1>
-          <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
-            <div className="bg-slate-200 px-2 py-1 rounded">
-              {course.category?.name}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="bg-slate-200 px-3 py-2 rounded">
+              MYR {course.price ? course.price : 'Free'}
             </div>
-            <div className="bg-slate-200 px-2 py-1 rounded">
-              MYR{course.price}
+            {course.category && (
+              <div className="bg-slate-200 px-3 py-2 rounded">
+                {course.category.name}
+              </div>
+            )}
+            <div className="bg-blue-100 text-blue-700 px-3 py-2 rounded font-medium">
+              LIVE
             </div>
             {course.nextLiveDate && (
-              <div className="bg-slate-200 px-2 py-1 rounded">
-                Next Live: {format(new Date(course.nextLiveDate), 'PPP')}
+              <div className="bg-slate-200 px-3 py-2 rounded">
+                {format(new Date(course.nextLiveDate), 'PPP')}
               </div>
             )}
           </div>
-          <p className="text-slate-700 mb-4">{course.description}</p>
+          <p className="text-slate-700">
+            {course.description}
+          </p>
 
           {/* Attachments Section */}
           {course.attachments.length > 0 && (
@@ -177,17 +186,18 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
         </div>
 
         {/* Right Column - Booking and Schedule */}
-        <div className="flex-1">
+        <div className="md:col-span-2">
           {/* Live Session Controls */}
           {course.createdById === userId && (
-            <div className="bg-slate-100 rounded-lg p-4 mb-8">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Live Session Controls</h3>
+            <div className="bg-white shadow-lg rounded-xl p-6 mb-6 border-2 border-blue-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold">Live Session Controls</h3>
                 <Button
                   size="lg"
                   variant={course.isCourseLive ? 'destructive' : 'default'}
                   disabled={isLoading}
                   onClick={() => router.push(`/courses/${params.courseId}/live`)}
+                  className="shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
                 >
                   {course.isCourseLive ? 'Stop Live Session' : 'Start Live Session'}
                 </Button>
@@ -196,7 +206,7 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
           )}
 
           {/* Booking Section */}
-          <div className="bg-slate-100 rounded-lg p-4 mb-8">
+          <div className="bg-white shadow-lg rounded-xl p-6 mb-6 border-2 border-blue-100">
             <div className="flex items-center justify-between mb-2">
               <div>
                 <h3 className="font-semibold">Available Seats</h3>
@@ -253,27 +263,29 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
           </div>
 
           {/* Schedule Section */}
-          <h2 className="text-xl font-semibold mb-4">Course Schedule</h2>
-          <div className="space-y-4">
-            {course.schedules.map((schedule) => (
-              <div
-                key={schedule.id}
-                className="bg-slate-100 rounded-lg p-4"
-              >
-                <div className="font-medium text-lg mb-1">{schedule.topic}</div>
-                <div className="text-sm text-slate-600 mb-2">
-                  Speaker: {schedule.speaker}
+          <div className="bg-white shadow-lg rounded-xl p-6">
+            <h2 className="text-xl font-semibold mb-4">Course Schedule</h2>
+            <div className="space-y-4">
+              {course.schedules.map((schedule) => (
+                <div
+                  key={schedule.id}
+                  className="bg-slate-50 rounded-lg p-4 border border-slate-200 hover:border-blue-200 transition-colors"
+                >
+                  <div className="font-medium text-lg mb-1">{schedule.topic}</div>
+                  <div className="text-sm text-slate-600 mb-2">
+                    Speaker: {schedule.speaker}
+                  </div>
+                  <div className="text-sm text-slate-500">
+                    Time: {format(new Date(schedule.scheduledDate), 'hh:mm a')}
+                  </div>
                 </div>
-                <div className="text-sm text-slate-500">
-                  Time: {format(new Date(schedule.scheduledDate), 'hh:mm a')}
+              ))}
+              {course.schedules.length === 0 && (
+                <div className="text-center text-slate-500 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                  No schedule entries found
                 </div>
-              </div>
-            ))}
-            {course.schedules.length === 0 && (
-              <div className="text-center text-slate-500 p-4 bg-slate-100 rounded-lg">
-                No schedule entries found
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
