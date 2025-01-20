@@ -31,7 +31,7 @@ const isLiveCourse = course.courseType === 'LIVE'
 
   return (
     <div className="flex flex-row-reverse">
-      <div className="hidden lg:block">
+      <div className="hidden lg:block w-[400px]">
         <CourseSidebar course={course} progressCount={progressCount} />
       </div>
       <div className="flex-1">
