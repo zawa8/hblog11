@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/popover'
 
 const courseTypes = [
-  { id: 'live', name: 'Live Courses', icon: MdLiveTv },
-  { id: 'recorded', name: 'Recorded Courses', icon: FaVideo },
+  { id: 'LIVE', name: 'Live Courses', icon: MdLiveTv },
+  { id: 'RECORDED', name: 'Recorded Courses', icon: FaVideo },
 ]
 
 export const CourseType = () => {
@@ -33,12 +33,21 @@ export const CourseType = () => {
   // Sync with URL state on mount and when URL changes
   React.useEffect(() => {
     const currentType = searchParams.get('type')
+    console.log('Current type from URL:', currentType)
     setValue(currentType || '')
   }, [searchParams])
 
   const handleSelect = (typeId: string) => {
+    console.log('Selected type:', typeId)
     const currentTitle = searchParams.get('title')
     const currentCategoryId = searchParams.get('categoryId')
+
+    const queryParams = {
+      title: currentTitle || null,
+      categoryId: currentCategoryId || null,
+      type: typeId || null,
+    }
+    console.log('Query params:', queryParams)
 
     const url = qs.stringifyUrl(
       {
@@ -52,9 +61,11 @@ export const CourseType = () => {
       { skipEmptyString: true, skipNull: true },
     )
 
+    console.log('Generated URL:', url)
     setValue(typeId)
     setOpen(false)
     router.push(url)
+    console.log('Router push called with URL:', url)
   }
 
   const selectedItem = React.useMemo(() => {

@@ -3,39 +3,11 @@ import { getProgress } from './get-progress'
 import { clerkClient } from '@clerk/nextjs'
 import { Prisma, Course } from '@prisma/client'
 
-interface RawQueryResult extends Omit<QueryResult, 'createdAt' | 'updatedAt' | 'schedules'> {
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  schedules: Array<{
-    id: string;
-    scheduledDate: string | Date;
-  }>;
-}
-
-interface QueryResult {
-  id: string;
-  title: string;
-  description: string | null;
-  imageUrl: string | null;
-  price: number | null;
-  isPublished: boolean;
-  courseType: Course['courseType'];
-  createdById: string;
-  createdAt: Date;
-  updatedAt: Date;
-  categoryId: string | null;
-  agoraChannelName: string | null;
-  agoraToken: string | null;
-  isLiveActive: boolean;
-  maxParticipants: number | null;
-  isCourseLive: boolean;
+export interface CourseWithProgressAndCategory extends Course {
   category: { id: string; name: string } | null;
   chapters: { id: string }[];
   schedules: { id: string; scheduledDate: Date }[];
   purchases: { id: string }[];
-}
-
-export interface CourseWithProgressAndCategory extends QueryResult {
   progress: number | null;
   nextLiveDate: Date | null;
   teacher: {
@@ -63,74 +35,48 @@ export async function getCourses({
       throw new Error('userId is required');
     }
 
-    const query = Prisma.sql`
-      SELECT 
-        c.*,
-        CAST(
-          CASE 
-            WHEN cat.id IS NOT NULL THEN 
-              json_build_object('id', cat.id, 'name', cat.name)
-            ELSE NULL 
-          END 
-        AS jsonb) as category,
-        CAST(
-          COALESCE(
-            json_agg(
-              DISTINCT jsonb_build_object('id', ch.id)
-            ) FILTER (WHERE ch.id IS NOT NULL),
-            '[]'
-          ) AS jsonb
-        ) as chapters,
-        CAST(
-          COALESCE(
-            json_agg(
-              DISTINCT jsonb_build_object(
-                'id', s.id,
-                'scheduledDate', s."scheduledDate"
-              )
-            ) FILTER (WHERE s.id IS NOT NULL AND s."scheduledDate" >= NOW()),
-            '[]'
-          ) AS jsonb
-        ) as schedules,
-        CAST(
-          COALESCE(
-            json_agg(
-              DISTINCT jsonb_build_object('id', p.id)
-            ) FILTER (WHERE p.id IS NOT NULL),
-            '[]'
-          ) AS jsonb
-        ) as purchases
-      FROM "Course" c
-      LEFT JOIN "Category" cat ON c."categoryId" = cat.id
-      LEFT JOIN "Chapter" ch ON ch."courseId" = c.id AND ch."isPublished" = true
-      LEFT JOIN "Schedule" s ON s."courseId" = c.id
-      LEFT JOIN "Purchase" p ON p."courseId" = c.id AND p."userId" = ${userId}
-      WHERE c."isPublished" = true
-      ${categoryId ? Prisma.sql`AND c."categoryId" = ${categoryId}` : Prisma.empty}
-      ${title ? Prisma.sql`AND c.title ILIKE ${`%${title}%`}` : Prisma.empty}
-      ${type ? Prisma.sql`AND c."courseType" = ${type === 'live' ? 'LIVE' : 'RECORDED'}` : Prisma.empty}
-      GROUP BY c.id, cat.id, cat.name
-      ORDER BY c."createdAt" DESC
-    `;
+    console.log('Filtering courses with params:', { userId, title, categoryId, type });
 
-    const rawCourses = await db.$queryRaw<RawQueryResult[]>(query);
-
-    // Parse dates and ensure proper typing
-    const courses = rawCourses.map(course => ({
-      ...course,
-      createdAt: new Date(course.createdAt),
-      updatedAt: new Date(course.updatedAt),
-      schedules: Array.isArray(course.schedules) ? course.schedules.map(s => ({
-        ...s,
-        scheduledDate: new Date(s.scheduledDate)
-      })) : [],
-      chapters: Array.isArray(course.chapters) ? course.chapters : [],
-      purchases: Array.isArray(course.purchases) ? course.purchases : [],
-      category: course.category || null
-    }));
+    const courses = await db.course.findMany({
+      where: {
+        isPublished: true,
+        ...(title && { title: { contains: title, mode: 'insensitive' } }),
+        ...(categoryId && { categoryId }),
+        ...(type && { courseType: type as 'LIVE' | 'RECORDED' }),
+      },
+      include: {
+        category: true,
+        chapters: {
+          where: {
+            isPublished: true,
+          },
+          orderBy: {
+            position: 'asc',
+          },
+        },
+        schedules: {
+          where: {
+            scheduledDate: {
+              gte: new Date(),
+            },
+          },
+          orderBy: {
+            scheduledDate: 'asc',
+          },
+        },
+        purchases: {
+          where: {
+            userId,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
     const coursesWithProgress = await Promise.all(
-      courses.map(async (course) => {
+      courses.map(async (course): Promise<CourseWithProgressAndCategory> => {
         const progressPercentage = course.purchases.length === 0 ? null : await getProgress(userId, course.id);
         let teacher;
         try {
@@ -154,9 +100,13 @@ export async function getCourses({
       })
     );
 
+    console.log('Found courses:', courses.map(c => ({ id: c.id, title: c.title, type: c.courseType })));
     return coursesWithProgress;
   } catch (error) {
     console.error('Error fetching courses:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
     return [];
   }
 }
