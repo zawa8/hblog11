@@ -30,14 +30,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     const checkLiveStatus = async () => {
       try {
         const response = await axios.get(`/api/courses/${courseId}`)
-        if (response.data.courseType !== 'LIVE') {
-          toast.error('This course is not configured for live sessions')
-          return
-        }
         setIsLive(response.data.isCourseLive || false)
-      } catch (error: any) {
-        console.error('Failed to check live status:', error)
-        toast.error(error.response?.data || 'Failed to check live status')
+      } catch (error) {
+        toast.error('Failed to check live status')
       } finally {
         setIsInitialLoading(false)
       }
@@ -86,81 +81,32 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const startLiveStream = async () => {
     try {
       setIsLoading(true)
-      
-      if (!client) {
-        throw new Error("Agora client not initialized");
-      }
+      // Get Agora token and channel name from backend
+      const response = await axios.post(`/api/courses/${courseId}/live`)
+      const { token, channelName, appId } = response.data
 
-      // Check if course is configured for live sessions
-      const courseResponse = await axios.get(`/api/courses/${courseId}`);
-      if (courseResponse.data.courseType !== 'LIVE') {
-        throw new Error('This course is not configured for live sessions');
-      }
+      if (!client) return
 
-      console.log("Requesting Agora credentials from backend...");
-      const response = await axios.post(`/api/courses/${courseId}/live`, {
-        maxParticipants: 100, // Default max participants
-        nextLiveDate: new Date().toISOString()
-      }).catch(error => {
-        console.error("Backend API error:", error.response?.data || error.message);
-        if (error.response?.data) {
-          throw new Error(error.response.data);
-        }
-        throw new Error("Failed to get Agora credentials");
-      });
+      // Join channel
+      await client.join(appId, channelName, token)
 
-      const { token, channelName, appId } = response.data;
-      
-      if (!appId || !token || !channelName) {
-        console.error("Missing Agora credentials:", { 
-          appId: appId ? 'present' : 'missing',
-          token: token ? 'present' : 'missing',
-          channelName: channelName ? 'present' : 'missing'
-        });
-        throw new Error("Invalid Agora credentials received from server");
-      }
+      // Create and publish tracks
+      const videoTrack = await AgoraRTC.createCameraVideoTrack()
+      const audioTrack = await AgoraRTC.createMicrophoneAudioTrack()
 
-      console.log("Received Agora credentials successfully");
+      await client.publish([videoTrack, audioTrack])
 
-      console.log("Joining Agora channel...");
-      await client.join(appId, channelName, token).catch(error => {
-        console.error("Failed to join Agora channel:", error);
-        throw new Error("Failed to join live session");
-      });
-
-      console.log("Creating media tracks...");
-      const videoTrack = await AgoraRTC.createCameraVideoTrack().catch(error => {
-        console.error("Failed to create video track:", error);
-        throw new Error("Failed to access camera");
-      });
-      
-      const audioTrack = await AgoraRTC.createMicrophoneAudioTrack().catch(error => {
-        console.error("Failed to create audio track:", error);
-        throw new Error("Failed to access microphone");
-      });
-
-      console.log("Publishing media tracks...");
-      await client.publish([videoTrack, audioTrack]).catch(error => {
-        console.error("Failed to publish tracks:", error);
-        throw new Error("Failed to start streaming");
-      });
-
-      setLocalVideoTrack(videoTrack);
-      setLocalAudioTrack(audioTrack);
-      
-      console.log("Updating course live status...");
+      setLocalVideoTrack(videoTrack)
+      setLocalAudioTrack(audioTrack)
+      // Update course live status
       await axios.patch(`/api/courses/${courseId}`, {
         isCourseLive: true
-      }).catch(error => {
-        console.error("Failed to update course status:", error);
-        throw new Error("Failed to update course status");
-      });
-      
-      setIsLive(true);
-      toast.success('Live stream started successfully!');
-    } catch (error: any) {
-      console.error("Live stream error:", error);
-      toast.error(error.message || 'Failed to start live stream');
+      })
+      setIsLive(true)
+
+      toast.success('Live stream started!')
+    } catch (error) {
+      toast.error('Failed to start live stream')
     } finally {
       setIsLoading(false)
     }

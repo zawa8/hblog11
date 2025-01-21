@@ -7,10 +7,6 @@ const AGORA_APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID || ''
 const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE || ''
 
 if (!AGORA_APP_ID || !AGORA_APP_CERTIFICATE) {
-  console.error('Missing Agora credentials:', { 
-    appId: AGORA_APP_ID ? 'present' : 'missing',
-    certificate: AGORA_APP_CERTIFICATE ? 'present' : 'missing'
-  });
   throw new Error('Agora credentials not configured in environment variables')
 }
 
@@ -61,8 +57,6 @@ export async function POST(
       where: {
         id: courseId,
         courseType: 'LIVE',
-        isPublished: true,
-        createdById: userId
       },
       include: {
         purchases: true
@@ -70,23 +64,8 @@ export async function POST(
     }) as unknown as CourseWithPurchases | null
 
     if (!course) {
-      console.error('Course validation failed:', {
-        courseId,
-        userId,
-        reason: 'Course must be published, type LIVE, and user must be creator'
-      });
-      return new NextResponse('Course not found or not configured for live sessions', { status: 404 })
+      return new NextResponse('Course not found', { status: 404 })
     }
-
-    // Check if course has maxParticipants set
-    if (!course.maxParticipants) {
-      console.error('Course validation failed:', {
-        courseId,
-        reason: 'maxParticipants not set'
-      });
-      return new NextResponse('Course not properly configured for live sessions', { status: 400 })
-    }
-
 
     // Check participant limit for non-teacher users
     if (course?.createdById !== userId && course?.maxParticipants) {
@@ -141,23 +120,14 @@ export async function POST(
       },
     })
 
-    const response = {
+    return NextResponse.json({
       token,
       channelName,
       appId: AGORA_APP_ID,
       uid: 0,
-    };
-    
-    console.log('Successfully generated Agora credentials:', {
-      channelName,
-      appId: AGORA_APP_ID ? 'present' : 'missing',
-      token: token ? 'present' : 'missing'
-    });
-    
-    return NextResponse.json(response)
-  } catch (error: any) {
-    console.error('Live session error:', error);
-    return new NextResponse(error.message || 'Internal Error', { status: 500 })
+    })
+  } catch (error) {
+    return new NextResponse('Internal Error', { status: 500 })
   }
 }
 
