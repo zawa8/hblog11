@@ -24,7 +24,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
   const [remoteVideoTrack, setRemoteVideoTrack] = useState<IRemoteVideoTrack | null>(null)
-  const [setRemoteAudioTrack] = useState<IRemoteAudioTrack | null>(null)
   const [isLive, setIsLive] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [recordings, setRecordings] = useState<Recording[]>([])
@@ -117,11 +116,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
               }
             }
             if (mediaType === 'audio') {
-              const audioTrack = user.audioTrack
-              if (audioTrack) {
-                setRemoteAudioTrack(audioTrack)
-                audioTrack.play()
-              }
+              user.audioTrack?.play()
             }
           })
 
@@ -129,9 +124,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
             console.log('Teacher stopped streaming:', mediaType)
             if (mediaType === 'video') {
               setRemoteVideoTrack(null)
-            }
-            if (mediaType === 'audio') {
-              setRemoteAudioTrack(null)
             }
           })
         }
