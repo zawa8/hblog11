@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 
 type CourseProperties = {
   isCourseLive: boolean;
+  isLiveActive: boolean;
   nextSchedule: Schedule | null;
   schedules: Schedule[];
   purchases: Purchase[];
@@ -160,7 +161,7 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
       const scheduleDate = nextSchedule ? new Date(nextSchedule.scheduledDate) : null
       const isWithin10Minutes = scheduleDate &&
       now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10 // 10 minutes before
-      const isCourseLive = row.original.isCourseLive
+      const isLive = row.original.isCourseLive && row.original.isLiveActive
 
       return (
         <DropdownMenu>
@@ -178,15 +179,15 @@ export const columns: ColumnDef<CourseWithSchedule>[] = [
               </DropdownMenuItem>
             </Link>
             {courseType === 'LIVE' && scheduleDate && (
-              isCourseLive ? (
-                <Link href={`/courses/${id}/live`}>
+              isLive ? (
+                <Link href={`/courses/${id}/live-classroom`}>
                   <DropdownMenuItem>
                     <RadioTower className="mr-2 h-4 w-4 text-red-600" />
                     Stop Live Session
                   </DropdownMenuItem>
                 </Link>
               ) : (
-                <Link href={`/courses/${id}/live`}>
+                <Link href={`/courses/${id}/live-classroom`}>
                   <DropdownMenuItem
                     disabled={!isWithin10Minutes}
                     title={!isWithin10Minutes ? 'Available 10 mins before start' : undefined}

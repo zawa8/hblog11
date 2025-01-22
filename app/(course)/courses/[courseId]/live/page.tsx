@@ -28,6 +28,7 @@ type CourseWithRelations = Course & {
   purchases: Purchase[];
   maxParticipants: number | null;
   isCourseLive: boolean;
+  isLiveActive: boolean;
 }
 
 const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
@@ -114,21 +115,6 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
 
   return (
     <div className="p-6">
-      {/* Live Video Section - Only visible to enrolled users and course creator */}
-      {(course.createdById === userId || course.purchases.some(p => p.userId === userId)) && (
-        <div className="mb-8">
-          <div className="relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-slate-400">
-                {course.createdById === userId
-                  ? 'Click Start Live Session to begin streaming'
-                  : 'Waiting for teacher to start the live stream'}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
         {/* Left Column - Title, Image, and Description */}
         <div className="md:col-span-3">
@@ -194,12 +180,12 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
                 <h3 className="text-xl font-semibold">Live Session Controls</h3>
                 <Button
                   size="lg"
-                  variant={course.isCourseLive ? 'destructive' : 'default'}
+                  variant={(course.isCourseLive && course.isLiveActive) ? 'destructive' : 'default'}
                   disabled={isLoading}
-                  onClick={() => router.push(`/courses/${params.courseId}/live`)}
+                  onClick={() => router.push(`/courses/${params.courseId}/live-classroom`)}
                   className="shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
                 >
-                  {course.isCourseLive ? 'Stop Live Session' : 'Start Live Session'}
+                  {(course.isCourseLive && course.isLiveActive) ? 'Stop Live Session' : 'Start Live Session'}
                 </Button>
               </div>
             </div>
@@ -230,11 +216,11 @@ const LiveCoursePage = ({ params }: { params: { courseId: string } }) => {
                   <Button
                     size="lg"
                     variant="outline"
-                    disabled={!course.isLiveActive}
+                    disabled={!(course.isCourseLive && course.isLiveActive)}
                     onClick={() => router.push(`/courses/${params.courseId}/live-classroom`)}
                     className="w-full"
                   >
-                   {course.isLiveActive
+                   {(course.isCourseLive && course.isLiveActive)
                    ? 'Join Live Session' : 'Waiting for Live Session'}
                   </Button>
                 ) : (

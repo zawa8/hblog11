@@ -60,15 +60,15 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
               const now = new Date()
               const scheduleDate = new Date(course.nextSchedule.scheduledDate)
               const isWithin10Minutes = now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10
-              return course.isCourseLive ? (
-                <Link key={course.id} href={`/courses/${course.id}/live`}>
+              return (course.isCourseLive && course.isLiveActive) ? (
+                <Link key={course.id} href={`/courses/${course.id}/live-classroom`}>
                   <Button variant="destructive" className="flex items-center gap-x-2">
                     <RadioTower className="h-4 w-4" />
                     Stop Live Session
                   </Button>
                 </Link>
               ) : (
-                <Link key={course.id} href={`/courses/${course.id}/live`}>
+                <Link key={course.id} href={`/courses/${course.id}/live-classroom`}>
                   <Button
                     disabled={!isWithin10Minutes}
                     className="flex items-center gap-x-2"

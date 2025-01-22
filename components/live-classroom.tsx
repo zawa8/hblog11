@@ -29,24 +29,30 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   useEffect(() => {
     const checkLiveStatus = async () => {
       try {
+        console.log('Checking live status...')
         const response = await axios.get(`/api/courses/${courseId}`)
-        setIsLive(response.data.isCourseLive || false)
-      } catch (error) {
-        toast.error('Failed to check live status')
+        console.log('Live status response:', response.data)
+        // Consider both flags to determine if the course is truly live
+        setIsLive(response.data.isCourseLive && response.data.isLiveActive)
+      } catch (error: any) {
+        console.error('Status check error:', error)
+        toast.error(error?.response?.data || error?.message || 'Failed to check live status')
       } finally {
         setIsInitialLoading(false)
       }
     }
     checkLiveStatus()
   }, [courseId])
+
   const [recordings, setRecordings] = useState<Recording[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const fetchRecordings = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/${courseId}/live/recording`)
       setRecordings(response.data)
-    } catch (error) {
-      toast.error('Failed to fetch recordings')
+    } catch (error: any) {
+      console.error('Fetch recordings error:', error)
+      toast.error(error?.response?.data || error?.message || 'Failed to fetch recordings')
     }
   }, [courseId])
 
@@ -56,8 +62,15 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
   useEffect(() => {
     const initAgora = async () => {
-      const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
-      setClient(agoraClient)
+      try {
+        console.log('Initializing Agora client...')
+        const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
+        setClient(agoraClient)
+        console.log('Agora client initialized')
+      } catch (error: any) {
+        console.error('Agora init error:', error)
+        toast.error('Failed to initialize video client')
+      }
     }
 
     initAgora()
@@ -81,32 +94,61 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const startLiveStream = async () => {
     try {
       setIsLoading(true)
+      console.log('Starting live stream...')
+      
       // Get Agora token and channel name from backend
-      const response = await axios.post(`/api/courses/${courseId}/live`)
+      console.log('Getting Agora credentials...')
+      const response = await axios.post(`/api/courses/${courseId}/live`, {})
+      console.log('Agora credentials received:', {
+        appId: response.data.appId,
+        channelName: response.data.channelName,
+        uid: response.data.uid,
+        token: '[REDACTED]'
+      })
       const { token, channelName, appId } = response.data
 
-      if (!client) return
+      if (!client) {
+        throw new Error('Video client not initialized')
+      }
 
       // Join channel
+      console.log('Joining Agora channel...')
       await client.join(appId, channelName, token)
+      console.log('Joined Agora channel')
 
       // Create and publish tracks
+      console.log('Creating video and audio tracks...')
       const videoTrack = await AgoraRTC.createCameraVideoTrack()
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack()
 
+      console.log('Publishing tracks...')
       await client.publish([videoTrack, audioTrack])
+      console.log('Tracks published')
 
       setLocalVideoTrack(videoTrack)
       setLocalAudioTrack(audioTrack)
-      // Update course live status
-      await axios.patch(`/api/courses/${courseId}`, {
-        isCourseLive: true
-      })
-      setIsLive(true)
-
-      toast.success('Live stream started!')
-    } catch (error) {
-      toast.error('Failed to start live stream')
+      
+      // Only update course live status after successful publish
+      try {
+        console.log('Updating course status...')
+        await axios.patch(`/api/courses/${courseId}`, {
+          isCourseLive: true,
+          isLiveActive: true
+        })
+        setIsLive(true)
+        toast.success('Live stream started!')
+        console.log('Live stream started successfully')
+      } catch (error: any) {
+        console.error('Status update error:', error)
+        // If updating status fails, cleanup the stream
+        videoTrack.close()
+        audioTrack.close()
+        await client.leave()
+        throw new Error(error?.response?.data || error?.message || 'Failed to update course status')
+      }
+    } catch (error: any) {
+      console.error('Live stream error:', error)
+      toast.error(error?.response?.data || error?.message || 'Failed to start live stream')
     } finally {
       setIsLoading(false)
     }
@@ -115,21 +157,29 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const stopLiveStream = async () => {
     try {
       setIsLoading(true)
-      if (!client) return
+      console.log('Stopping live stream...')
+      
+      if (!client) {
+        throw new Error('Video client not initialized')
+      }
 
       // Get recording URL from Agora Cloud Recording (you'll need to implement this)
       // For this example, we'll use a placeholder URL
       const recordingUrl = 'https://example.com/recording.mp4'
 
       // Unpublish and close tracks
+      console.log('Closing tracks...')
       localVideoTrack?.close()
       localAudioTrack?.close()
       await client.leave()
+      console.log('Left Agora channel')
 
       // Update backend
+      console.log('Updating live session status...')
       await axios.delete(`/api/courses/${courseId}/live`)
 
       // Store recording in Mux
+      console.log('Storing recording...')
       await axios.post(`/api/courses/${courseId}/live/recording`, {
         recordingUrl,
         title: `Live Session - ${new Date().toLocaleDateString()}`,
@@ -137,16 +187,26 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(null)
       setLocalAudioTrack(null)
+      
       // Update course live status
-      await axios.patch(`/api/courses/${courseId}`, {
-        isCourseLive: false
-      })
-      setIsLive(false)
-
-      toast.success('Live stream ended and recording saved')
+      try {
+        console.log('Updating course status...')
+        await axios.patch(`/api/courses/${courseId}`, {
+          isCourseLive: false,
+          isLiveActive: false
+        })
+        setIsLive(false)
+        toast.success('Live stream ended and recording saved')
+        console.log('Live stream ended successfully')
+      } catch (error: any) {
+        console.error('Status update error:', error)
+        toast.error(error?.response?.data || error?.message || 'Failed to update course status')
+        throw error
+      }
       fetchRecordings()
-    } catch (error) {
-      toast.error('Failed to stop live stream')
+    } catch (error: any) {
+      console.error('Stop stream error:', error)
+      toast.error(error?.response?.data || error?.message || 'Failed to stop live stream')
     } finally {
       setIsLoading(false)
     }
