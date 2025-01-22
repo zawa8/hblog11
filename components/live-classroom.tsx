@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack, IRemoteVideoTrack } from 'agora-rtc-sdk-ng'
 import axios from 'axios'
 import MuxPlayer from '@mux/mux-player-react'
@@ -20,6 +20,7 @@ interface Recording {
 }
 
 export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
+  const isMounted = useRef(true)
   const [client, setClient] = useState<IAgoraRTCClient | null>(null)
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
@@ -32,6 +33,8 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
   const cleanupTracks = useCallback(async () => {
     try {
+      if (!isMounted.current) return
+      
       if (localVideoTrack) {
         try {
           await localVideoTrack.stop()
@@ -191,6 +194,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
   useEffect(() => {
     return () => {
+      isMounted.current = false
       cleanupTracks()
     }
   }, [cleanupTracks])
@@ -339,9 +343,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
                 id='local-video'
                 className='w-full h-full'
                 ref={(element) => {
-                  if (element && localVideoTrack) {
+                  if (element && localVideoTrack && isMounted.current) {
                     try {
-                      localVideoTrack.play(element)
+                      if (!element.hasChildNodes()) {
+                        localVideoTrack.play(element)
+                      }
                     } catch (error) {
                       console.error('Failed to play local video:', error)
                     }
@@ -357,9 +363,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
                 id='remote-video'
                 className='w-full h-full'
                 ref={(element) => {
-                  if (element && remoteVideoTrack) {
+                  if (element && remoteVideoTrack && isMounted.current) {
                     try {
-                      remoteVideoTrack.play(element)
+                      if (!element.hasChildNodes()) {
+                        remoteVideoTrack.play(element)
+                      }
                     } catch (error) {
                       console.error('Failed to play remote video:', error)
                     }
