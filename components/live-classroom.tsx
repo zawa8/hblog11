@@ -72,7 +72,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         if (!isTeacher && isLiveNow && client && !isConnected) {
           joinLiveStream()
         }
-        
         // If session is not live but we're connected, clean up
         if (!isLiveNow && isConnected) {
           console.log('Stream ended, cleaning up connection')
