@@ -34,6 +34,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [recordings, setRecordings] = useState<Recording[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     const initAxios = async () => {
@@ -42,7 +43,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         if (!token) {
           throw new Error('Authentication token not available')
         }
-        setAxiosInstance(createAxiosInstance(token))
+        const instance = createAxiosInstance(token)
+        setAxiosInstance(instance)
+        setIsReady(true)
       } catch (error) {
         console.error('Failed to initialize authenticated client:', error)
         toast.error('Authentication failed. Please try refreshing the page.')
@@ -87,7 +90,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [client, localVideoTrack, localAudioTrack, isConnected])
 
   const joinLiveStream = useCallback(async () => {
-    if (!axiosInstance) {
+    if (!isReady || !axiosInstance) {
       toast.error('Not ready yet. Please try again.')
       return
     }
@@ -120,11 +123,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       toast.error('Failed to join live stream')
       await cleanupTracks()
     }
-  }, [courseId, client, isConnected, cleanupTracks, axiosInstance])
+  }, [courseId, client, isConnected, cleanupTracks, axiosInstance, isReady])
 
   useEffect(() => {
     const checkLiveStatus = async () => {
-      if (!axiosInstance) return
+      if (!isReady || !axiosInstance) return
 
       try {
         console.log('Checking live status...')
@@ -148,13 +151,22 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       }
     }
 
-    checkLiveStatus()
-    const interval = setInterval(checkLiveStatus, 5000)
-    return () => clearInterval(interval)
-  }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks, axiosInstance])
+    let interval: NodeJS.Timeout | null = null
+    
+    if (isReady && axiosInstance) {
+      checkLiveStatus()
+      interval = setInterval(checkLiveStatus, 5000)
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval)
+      }
+    }
+  }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks, axiosInstance, isReady])
 
   const fetchRecordings = useCallback(async () => {
-    if (!axiosInstance) return
+    if (!isReady || !axiosInstance) return
 
     try {
       const response = await axiosInstance.get(`/api/courses/${courseId}/live/recording`)
@@ -163,11 +175,13 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       console.error('Fetch recordings error:', error)
       toast.error(error?.response?.data || error?.message || 'Failed to fetch recordings')
     }
-  }, [courseId, axiosInstance])
+  }, [courseId, axiosInstance, isReady])
 
   useEffect(() => {
-    fetchRecordings()
-  }, [fetchRecordings])
+    if (isReady && axiosInstance) {
+      fetchRecordings()
+    }
+  }, [fetchRecordings, isReady, axiosInstance])
 
   useEffect(() => {
     const initAgora = async () => {
@@ -228,7 +242,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [cleanupTracks])
 
   const startLiveStream = async () => {
-    if (!axiosInstance) {
+    if (!isReady || !axiosInstance) {
       toast.error('Not ready yet. Please try again.')
       return
     }
@@ -290,7 +304,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }
 
   const stopLiveStream = async () => {
-    if (!axiosInstance) {
+    if (!isReady || !axiosInstance) {
       toast.error('Not ready yet. Please try again.')
       return
     }
