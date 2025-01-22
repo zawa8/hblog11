@@ -1,16 +1,14 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios'
 
 export const createAxiosInstance = (token?: string): AxiosInstance => {
-  const instance = axios.create();
-  
+  const instance = axios.create()
   if (token) {
     instance.interceptors.request.use((config) => {
       if (!config.headers.Authorization) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token}`
       }
-      return config;
-    });
+      return config
+    })
   }
-  
-  return instance;
-};
+  return instance
+}

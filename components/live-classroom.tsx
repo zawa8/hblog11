@@ -5,9 +5,9 @@ import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack, IR
 import { useAuth } from '@clerk/nextjs'
 import MuxPlayer from '@mux/mux-player-react'
 import toast from 'react-hot-toast'
+import { AxiosInstance } from 'axios'
 import { Button } from '@/components/ui/button'
 import { createAxiosInstance } from '@/lib/axios'
-import { AxiosInstance } from 'axios'
 
 interface LiveClassroomProps {
   courseId: string;
@@ -48,7 +48,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const cleanupTracks = useCallback(async () => {
     try {
       if (!isMounted.current) return
-      
       if (localVideoTrack) {
         try {
           await localVideoTrack.stop()
