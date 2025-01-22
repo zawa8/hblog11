@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng'
+import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack, IRemoteVideoTrack, IRemoteAudioTrack } from 'agora-rtc-sdk-ng'
 import axios from 'axios'
 import MuxPlayer from '@mux/mux-player-react'
 import toast from 'react-hot-toast'
@@ -23,8 +23,36 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [client, setClient] = useState<IAgoraRTCClient | null>(null)
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
+  const [remoteVideoTrack, setRemoteVideoTrack] = useState<IRemoteVideoTrack | null>(null)
+  const [remoteAudioTrack, setRemoteAudioTrack] = useState<IRemoteAudioTrack | null>(null)
   const [isLive, setIsLive] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [recordings, setRecordings] = useState<Recording[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  const joinLiveStream = useCallback(async () => {
+    try {
+      console.log('Student joining live stream...')
+      const response = await axios.post(`/api/courses/${courseId}/live`, {})
+      console.log('Agora credentials received:', {
+        appId: response.data.appId,
+        channelName: response.data.channelName,
+        uid: response.data.uid,
+        token: '[REDACTED]'
+      })
+      const { token, channelName, appId } = response.data
+
+      if (!client) {
+        throw new Error('Video client not initialized')
+      }
+
+      await client.join(appId, channelName, token)
+      console.log('Joined live stream as viewer')
+    } catch (error: any) {
+      console.error('Failed to join stream:', error)
+      toast.error('Failed to join live stream')
+    }
+  }, [courseId, client])
 
   useEffect(() => {
     const checkLiveStatus = async () => {
@@ -32,8 +60,13 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         console.log('Checking live status...')
         const response = await axios.get(`/api/courses/${courseId}`)
         console.log('Live status response:', response.data)
-        // Consider both flags to determine if the course is truly live
-        setIsLive(response.data.isCourseLive && response.data.isLiveActive)
+        const isLiveNow = response.data.isCourseLive && response.data.isLiveActive
+        setIsLive(isLiveNow)
+
+        // If student and session is live, join the stream
+        if (!isTeacher && isLiveNow && client) {
+          joinLiveStream()
+        }
       } catch (error: any) {
         console.error('Status check error:', error)
         toast.error(error?.response?.data || error?.message || 'Failed to check live status')
@@ -41,11 +74,16 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         setIsInitialLoading(false)
       }
     }
-    checkLiveStatus()
-  }, [courseId])
 
-  const [recordings, setRecordings] = useState<Recording[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+    // Initial check
+    checkLiveStatus()
+
+    // Poll every 5 seconds for updates
+    const interval = setInterval(checkLiveStatus, 5000)
+
+    return () => clearInterval(interval)
+  }, [courseId, client, isTeacher, joinLiveStream])
+
   const fetchRecordings = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/${courseId}/live/recording`)
@@ -65,6 +103,39 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       try {
         console.log('Initializing Agora client...')
         const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
+
+        // Set up user published handler for students
+        if (!isTeacher) {
+          agoraClient.on('user-published', async (user, mediaType) => {
+            await agoraClient.subscribe(user, mediaType)
+            console.log('Subscribed to teacher stream:', mediaType)
+
+            if (mediaType === 'video') {
+              const videoTrack = user.videoTrack
+              if (videoTrack) {
+                setRemoteVideoTrack(videoTrack)
+              }
+            }
+            if (mediaType === 'audio') {
+              const audioTrack = user.audioTrack
+              if (audioTrack) {
+                setRemoteAudioTrack(audioTrack)
+                audioTrack.play()
+              }
+            }
+          })
+
+          agoraClient.on('user-unpublished', (user, mediaType) => {
+            console.log('Teacher stopped streaming:', mediaType)
+            if (mediaType === 'video') {
+              setRemoteVideoTrack(null)
+            }
+            if (mediaType === 'audio') {
+              setRemoteAudioTrack(null)
+            }
+          })
+        }
+
         setClient(agoraClient)
         console.log('Agora client initialized')
       } catch (error: any) {
@@ -74,7 +145,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     }
 
     initAgora()
-  }, [])
+  }, [isTeacher])
 
   // Separate cleanup effect
   useEffect(() => {
@@ -126,6 +197,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(videoTrack)
       setLocalAudioTrack(audioTrack)
+      
       // Only update course live status after successful publish
       try {
         console.log('Updating course status...')
@@ -184,6 +256,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(null)
       setLocalAudioTrack(null)
+      
       // Update course live status
       try {
         console.log('Updating course status...')
@@ -244,7 +317,8 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
           </div>
         )}
         <div className='relative w-full aspect-video bg-slate-800 rounded-lg overflow-hidden'>
-          {localVideoTrack && (
+          {/* Teacher's local video */}
+          {isTeacher && localVideoTrack && (
             <div className='absolute inset-0'>
               <div
                 id='local-video'
@@ -257,12 +331,29 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
               />
             </div>
           )}
-          {!localVideoTrack && (
+          {/* Student's remote video */}
+          {!isTeacher && remoteVideoTrack && (
+            <div className='absolute inset-0'>
+              <div
+                id='remote-video'
+                className='w-full h-full'
+                ref={(element) => {
+                  if (element) {
+                    remoteVideoTrack.play(element)
+                  }
+                }}
+              />
+            </div>
+          )}
+          {/* Placeholder when no video */}
+          {((isTeacher && !localVideoTrack) || (!isTeacher && !remoteVideoTrack)) && (
             <div className='absolute inset-0 flex items-center justify-center'>
               <p className='text-slate-400'>
                 {isTeacher
                   ? 'Click Start Live to begin streaming'
-                  : 'Waiting for teacher to start the live stream'
+                  : isLive 
+                    ? 'Connecting to live stream...'
+                    : 'Waiting for teacher to start the live stream'
                 }
               </p>
             </div>
