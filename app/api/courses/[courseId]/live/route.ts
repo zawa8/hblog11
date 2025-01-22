@@ -127,8 +127,7 @@ export async function POST(
       uid: 0,
     })
   } catch (error) {
-    console.error('[LIVE_SESSION_ERROR]', error)
-    return new NextResponse('Internal Error', { status: 500, statusText: (error as Error).message })
+    return new NextResponse('Internal Error', { status: 500 })
   }
 }
 
