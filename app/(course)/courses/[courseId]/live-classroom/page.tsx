@@ -32,7 +32,7 @@ const LiveClassroomPage = ({ params }: PageProps) => {
 
   useEffect(() => {
     let mounted = true
-    const checkAccess = async (retryCount = 0) => {
+    const checkAccess = async (retryCount = 0): Promise<void | never> => {
       try {
         if (!userId) {
           return redirect('/?error=unauthorized')
