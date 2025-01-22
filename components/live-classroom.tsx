@@ -95,7 +95,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     try {
       setIsLoading(true)
       console.log('Starting live stream...')
-      
       // Get Agora token and channel name from backend
       console.log('Getting Agora credentials...')
       const response = await axios.post(`/api/courses/${courseId}/live`, {})
@@ -127,7 +126,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(videoTrack)
       setLocalAudioTrack(audioTrack)
-      
       // Only update course live status after successful publish
       try {
         console.log('Updating course status...')
@@ -158,7 +156,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     try {
       setIsLoading(true)
       console.log('Stopping live stream...')
-      
       if (!client) {
         throw new Error('Video client not initialized')
       }
@@ -187,7 +184,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(null)
       setLocalAudioTrack(null)
-      
       // Update course live status
       try {
         console.log('Updating course status...')

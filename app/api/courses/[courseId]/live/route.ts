@@ -139,8 +139,6 @@ export async function POST(
       })
       return new NextResponse('This course does not support live sessions', { status: 400 })
     }
-
-
     // Check participant limit for non-teacher users
     if (course?.createdById !== userId && course?.maxParticipants) {
       const participantCount = course.purchases.length

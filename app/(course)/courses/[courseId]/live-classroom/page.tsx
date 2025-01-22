@@ -1,13 +1,12 @@
 'use client'
 
-import { LiveClassroom } from '@/components/live-classroom'
 import { useAuth } from '@clerk/nextjs'
-import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { LiveClassroom } from '@/components/live-classroom'
 
 interface PageProps {
   params: {
