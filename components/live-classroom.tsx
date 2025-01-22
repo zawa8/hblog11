@@ -24,7 +24,7 @@ interface Recording {
 export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const { getToken } = useAuth()
   const isMounted = useRef(true)
-  const [axiosInstance, setAxiosInstance] = useState<AxiosInstance>(createAxiosInstance)
+  const [axiosInstance, setAxiosInstance] = useState<AxiosInstance>(createAxiosInstance())
   const [client, setClient] = useState<IAgoraRTCClient | null>(null)
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
@@ -37,9 +37,15 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
   useEffect(() => {
     const initAxios = async () => {
-      const token = await getToken()
-      if (token) {
+      try {
+        const token = await getToken()
+        if (!token) {
+          throw new Error('Authentication token not available')
+        }
         setAxiosInstance(createAxiosInstance(token))
+      } catch (error) {
+        console.error('Failed to initialize authenticated client:', error)
+        toast.error('Authentication failed. Please try refreshing the page.')
       }
     }
     initAxios()
@@ -109,7 +115,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       toast.error('Failed to join live stream')
       await cleanupTracks()
     }
-  }, [courseId, client, isConnected, cleanupTracks])
+  }, [courseId, client, isConnected, cleanupTracks, axiosInstance])
 
   useEffect(() => {
     const checkLiveStatus = async () => {
@@ -138,7 +144,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     checkLiveStatus()
     const interval = setInterval(checkLiveStatus, 5000)
     return () => clearInterval(interval)
-  }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks])
+  }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks, axiosInstance])
 
   const fetchRecordings = useCallback(async () => {
     try {
@@ -148,7 +154,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       console.error('Fetch recordings error:', error)
       toast.error(error?.response?.data || error?.message || 'Failed to fetch recordings')
     }
-  }, [courseId])
+  }, [courseId, axiosInstance])
 
   useEffect(() => {
     fetchRecordings()
