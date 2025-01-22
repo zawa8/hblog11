@@ -55,20 +55,35 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           className="max-w-sm"
         />
         <div className="flex items-center gap-x-2">
-          {(data as CourseWithSchedule[]).map((course) => {
-            if (course.courseType === 'LIVE' && course.nextSchedule) {
+          {(data as CourseWithSchedule[]).find(course => 
+            course.courseType === 'LIVE' && 
+            course.nextSchedule
+          ) && (
+            (() => {
+              const course = (data as CourseWithSchedule[]).find(course => 
+                course.courseType === 'LIVE' && 
+                course.nextSchedule &&
+                (course.isCourseLive && course.isLiveActive)
+              ) || (data as CourseWithSchedule[]).find(course => 
+                course.courseType === 'LIVE' && 
+                course.nextSchedule
+              )
+              
+              if (!course) return null
+              
               const now = new Date()
-              const scheduleDate = new Date(course.nextSchedule.scheduledDate)
+              const scheduleDate = new Date(course.nextSchedule!.scheduledDate)
               const isWithin10Minutes = now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10
+              
               return (course.isCourseLive && course.isLiveActive) ? (
-                <Link key={course.id} href={`/courses/${course.id}/live-classroom`}>
+                <Link href={`/courses/${course.id}/live-classroom`}>
                   <Button variant="destructive" className="flex items-center gap-x-2">
                     <RadioTower className="h-4 w-4" />
                     Stop Live Session
                   </Button>
                 </Link>
               ) : (
-                <Link key={course.id} href={`/courses/${course.id}/live-classroom`}>
+                <Link href={`/courses/${course.id}/live-classroom`}>
                   <Button
                     disabled={!isWithin10Minutes}
                     className="flex items-center gap-x-2"
@@ -79,9 +94,8 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                   </Button>
                 </Link>
               )
-            }
-            return null
-          })}
+            })()
+          )}
           <Link href="/teacher/create">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
