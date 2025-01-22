@@ -17,8 +17,9 @@ type CourseWithPurchases = {
   maxParticipants: number | null;
   isCourseLive: boolean;
   courseType: 'RECORDED' | 'LIVE';
-  purchases: Array<{ id: string }>;
+  purchases: Array<{ id: string; userId: string }>;
 };
+
 interface LiveSessionRequest {
   maxParticipants?: number;
   nextLiveDate?: string;
@@ -34,6 +35,10 @@ export async function POST(
     let maxParticipants: number | undefined
     let nextLiveDate: string | undefined
 
+    if (!userId) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+
     try {
       // Try to parse request body if it exists
       const body = await req.text()
@@ -47,17 +52,6 @@ export async function POST(
       // Continue without body data
     }
 
-    if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 })
-    }
-
-    console.log('Request from user:', userId)
-
-    // Validate maxParticipants
-    if (maxParticipants && (!Number.isInteger(maxParticipants) || maxParticipants < 1)) {
-      return new NextResponse('Invalid maximum participants', { status: 400 })
-    }
-
     console.log('Finding course:', courseId)
     const course = await db.course.findFirst({
       where: {
@@ -66,7 +60,8 @@ export async function POST(
       include: {
         purchases: {
           select: {
-            id: true
+            id: true,
+            userId: true
           }
         },
         schedules: {
@@ -84,24 +79,30 @@ export async function POST(
       }
     }) as unknown as (CourseWithPurchases & { schedules: Array<{ scheduledDate: Date }> }) | null
 
-    console.log('Course found:', {
-      ...course,
-      purchases: course?.purchases?.length || 0
-    })
-
     if (!course) {
       console.error('Course not found')
       return new NextResponse('Course not found', { status: 404 })
     }
 
     const isTeacher = course.createdById === userId
+    const hasPurchased = course.purchases.some(purchase => purchase.userId === userId)
+
+    // Verify access rights
+    if (!isTeacher && !hasPurchased) {
+      console.error('User does not have access:', {
+        userId,
+        courseId,
+        isTeacher,
+        hasPurchased
+      })
+      return new NextResponse('Unauthorized access to course', { status: 401 })
+    }
 
     // Validate course type
     if (course.courseType !== 'LIVE') {
       console.error('Not a live course:', {
         courseId,
-        courseType: course.courseType,
-        createdById: course.createdById
+        courseType: course.courseType
       })
       return new NextResponse('This course does not support live sessions', { status: 400 })
     }
@@ -152,7 +153,7 @@ export async function POST(
     }
 
     // Check participant limit for non-teacher users
-    if (course?.createdById !== userId && course?.maxParticipants) {
+    if (!isTeacher && course.maxParticipants) {
       const participantCount = course.purchases.length
       if (participantCount >= course.maxParticipants) {
         return new NextResponse('Maximum participants limit reached', { status: 403 })
@@ -160,7 +161,7 @@ export async function POST(
     }
 
     // Generate channel name if not exists
-    let channelName = course?.agoraChannelName
+    let channelName = course.agoraChannelName
     if (!channelName) {
       channelName = `course_${courseId}_${Date.now()}`
       const updateData = {
@@ -181,7 +182,7 @@ export async function POST(
     }
 
     // Generate Agora token
-    const role = course.createdById === userId ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER
+    const role = isTeacher ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER
     const expirationTimeInSeconds = 3600 // 1 hour
     const currentTimestamp = Math.floor(Date.now() / 1000)
     const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds
@@ -195,16 +196,16 @@ export async function POST(
       privilegeExpiredTs
     )
 
-    // Update course with token and live status
-    await db.course.update({
-      where: { id: courseId },
-      data: {
-        agoraToken: token,
-        isLiveActive: true,
-        // @ts-ignore - field exists in schema but types need regeneration
-        isCourseLive: true,
-      },
-    })
+    // Update course with token and live status if teacher
+    if (isTeacher) {
+      await db.course.update({
+        where: { id: courseId },
+        data: {
+          agoraToken: token,
+          isLiveActive: true
+        }
+      })
+    }
 
     return NextResponse.json({
       token,
@@ -238,7 +239,7 @@ export async function DELETE(
     })
 
     if (!course) {
-      return new NextResponse('Course not found', { status: 404 })
+      return new NextResponse('Course not found or unauthorized', { status: 404 })
     }
 
     // End live session
@@ -246,14 +247,12 @@ export async function DELETE(
       where: { id: courseId },
       data: {
         isLiveActive: false,
-        // @ts-ignore - field exists in schema but types need regeneration
-        isCourseLive: false,
-        agoraToken: null,
-      },
+        agoraToken: null
+      }
     })
 
     return NextResponse.json({
-      message: 'Live session ended',
+      message: 'Live session ended successfully'
     })
   } catch (error: any) {
     console.error('End session error:', error)

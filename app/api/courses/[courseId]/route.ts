@@ -39,7 +39,7 @@ interface Course {
   createdAt: Date;
   updatedAt: Date;
   chapters: Chapter[];
-  purchases: { id: string }[];
+  purchases: { id: string; userId: string }[];
 }
 
 async function checkAndUpdateCourseStatus(courseId: string) {
@@ -49,7 +49,8 @@ async function checkAndUpdateCourseStatus(courseId: string) {
       chapters: true,
       purchases: {
         select: {
-          id: true
+          id: true,
+          userId: true
         }
       }
     }
@@ -77,6 +78,11 @@ export async function GET(
   { params }: { params: { courseId: string } }
 ) {
   try {
+    const { userId } = auth()
+    if (!userId) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+
     // Check and update course status first
     await checkAndUpdateCourseStatus(params.courseId)
 
@@ -87,7 +93,12 @@ export async function GET(
       include: {
         attachments: true,
         category: true,
-        purchases: true,
+        purchases: {
+          select: {
+            id: true,
+            userId: true
+          }
+        },
       },
     })
 
@@ -95,9 +106,17 @@ export async function GET(
       return new NextResponse('Course not found', { status: 404 })
     }
 
+    // Check if user has access to the course
+    const isOwner = course.createdById === userId
+    const hasPurchased = course.purchases.some(purchase => purchase.userId === userId)
+
+    if (!isOwner && !hasPurchased) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+
     return NextResponse.json(course)
   } catch (error) {
-    // console.error('[COURSE_GET]', error)
+    console.error('[COURSE_GET]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }
@@ -153,6 +172,7 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
 
     return NextResponse.json(updatedCourse)
   } catch (error) {
+    console.error('[COURSE_PATCH]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }
@@ -186,7 +206,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { courseId:
     const deletedCourse = await db.course.delete({ where: { id: params.courseId } })
 
     return NextResponse.json(deletedCourse)
-  } catch {
+  } catch (error) {
+    console.error('[COURSE_DELETE]', error)
     return new NextResponse('Internal server exception', { status: 500 })
   }
 }

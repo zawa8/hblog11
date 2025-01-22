@@ -24,7 +24,7 @@ interface Recording {
 export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const { getToken } = useAuth()
   const isMounted = useRef(true)
-  const [axiosInstance, setAxiosInstance] = useState<AxiosInstance | null>(null)
+  const axiosInstanceRef = useRef<AxiosInstance | null>(null)
   const [client, setClient] = useState<IAgoraRTCClient | null>(null)
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
@@ -43,8 +43,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         if (!token) {
           throw new Error('Authentication token not available')
         }
-        const instance = createAxiosInstance(token)
-        setAxiosInstance(instance)
+        axiosInstanceRef.current = createAxiosInstance(token)
         setIsReady(true)
       } catch (error) {
         console.error('Failed to initialize authenticated client:', error)
@@ -90,7 +89,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [client, localVideoTrack, localAudioTrack, isConnected])
 
   const joinLiveStream = useCallback(async () => {
-    if (!isReady || !axiosInstance) {
+    if (!isReady || !axiosInstanceRef.current) {
       toast.error('Not ready yet. Please try again.')
       return
     }
@@ -102,7 +101,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       }
 
       console.log('Student joining live stream...')
-      const response = await axiosInstance.post(`/api/courses/${courseId}/live`, {})
+      const response = await axiosInstanceRef.current.post(`/api/courses/${courseId}/live`, {})
       console.log('Agora credentials received:', {
         appId: response.data.appId,
         channelName: response.data.channelName,
@@ -123,15 +122,15 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       toast.error('Failed to join live stream')
       await cleanupTracks()
     }
-  }, [courseId, client, isConnected, cleanupTracks, axiosInstance, isReady])
+  }, [courseId, client, isConnected, cleanupTracks, isReady])
 
   useEffect(() => {
     const checkLiveStatus = async () => {
-      if (!isReady || !axiosInstance) return
+      if (!isReady || !axiosInstanceRef.current) return
 
       try {
         console.log('Checking live status...')
-        const response = await axiosInstance.get(`/api/courses/${courseId}`)
+        const response = await axiosInstanceRef.current.get(`/api/courses/${courseId}`)
         console.log('Live status response:', response.data)
         const isLiveNow = response.data.isCourseLive && response.data.isLiveActive
         setIsLive(isLiveNow)
@@ -152,34 +151,36 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     }
 
     let interval: NodeJS.Timeout | null = null
-    if (isReady && axiosInstance) {
+    
+    if (isReady && axiosInstanceRef.current) {
       checkLiveStatus()
       interval = setInterval(checkLiveStatus, 5000)
     }
+    
     return () => {
       if (interval) {
         clearInterval(interval)
       }
     }
-  }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks, axiosInstance, isReady])
+  }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks, isReady])
 
   const fetchRecordings = useCallback(async () => {
-    if (!isReady || !axiosInstance) return
+    if (!isReady || !axiosInstanceRef.current) return
 
     try {
-      const response = await axiosInstance.get(`/api/courses/${courseId}/live/recording`)
+      const response = await axiosInstanceRef.current.get(`/api/courses/${courseId}/live/recording`)
       setRecordings(response.data)
     } catch (error: any) {
       console.error('Fetch recordings error:', error)
       toast.error(error?.response?.data || error?.message || 'Failed to fetch recordings')
     }
-  }, [courseId, axiosInstance, isReady])
+  }, [courseId, isReady])
 
   useEffect(() => {
-    if (isReady && axiosInstance) {
+    if (isReady && axiosInstanceRef.current) {
       fetchRecordings()
     }
-  }, [fetchRecordings, isReady, axiosInstance])
+  }, [fetchRecordings, isReady])
 
   useEffect(() => {
     const initAgora = async () => {
@@ -240,7 +241,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [cleanupTracks])
 
   const startLiveStream = async () => {
-    if (!isReady || !axiosInstance) {
+    if (!isReady || !axiosInstanceRef.current) {
       toast.error('Not ready yet. Please try again.')
       return
     }
@@ -248,7 +249,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     try {
       setIsLoading(true)
       console.log('Starting live stream...')
-      const response = await axiosInstance.post(`/api/courses/${courseId}/live`, {})
+      const response = await axiosInstanceRef.current.post(`/api/courses/${courseId}/live`, {})
       console.log('Agora credentials received:', {
         appId: response.data.appId,
         channelName: response.data.channelName,
@@ -280,7 +281,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       try {
         console.log('Updating course status...')
-        await axiosInstance.patch(`/api/courses/${courseId}`, {
+        await axiosInstanceRef.current.patch(`/api/courses/${courseId}`, {
           isCourseLive: true,
           isLiveActive: true
         })
@@ -302,7 +303,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }
 
   const stopLiveStream = async () => {
-    if (!isReady || !axiosInstance) {
+    if (!isReady || !axiosInstanceRef.current) {
       toast.error('Not ready yet. Please try again.')
       return
     }
@@ -319,17 +320,17 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       await cleanupTracks()
 
       console.log('Updating live session status...')
-      await axiosInstance.delete(`/api/courses/${courseId}/live`)
+      await axiosInstanceRef.current.delete(`/api/courses/${courseId}/live`)
 
       console.log('Storing recording...')
-      await axiosInstance.post(`/api/courses/${courseId}/live/recording`, {
+      await axiosInstanceRef.current.post(`/api/courses/${courseId}/live/recording`, {
         recordingUrl,
         title: `Live Session - ${new Date().toLocaleDateString()}`,
       })
 
       try {
         console.log('Updating course status...')
-        await axiosInstance.patch(`/api/courses/${courseId}`, {
+        await axiosInstanceRef.current.patch(`/api/courses/${courseId}`, {
           isCourseLive: false,
           isLiveActive: false
         })
