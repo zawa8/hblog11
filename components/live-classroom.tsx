@@ -24,7 +24,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
   const [remoteVideoTrack, setRemoteVideoTrack] = useState<IRemoteVideoTrack | null>(null)
-  const [remoteAudioTrack, setRemoteAudioTrack] = useState<IRemoteAudioTrack | null>(null)
+  const [setRemoteAudioTrack] = useState<IRemoteAudioTrack | null>(null)
   const [isLive, setIsLive] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [recordings, setRecordings] = useState<Recording[]>([])
@@ -197,7 +197,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(videoTrack)
       setLocalAudioTrack(audioTrack)
-      
       // Only update course live status after successful publish
       try {
         console.log('Updating course status...')
@@ -256,7 +255,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       setLocalVideoTrack(null)
       setLocalAudioTrack(null)
-      
       // Update course live status
       try {
         console.log('Updating course status...')
@@ -351,7 +349,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
               <p className='text-slate-400'>
                 {isTeacher
                   ? 'Click Start Live to begin streaming'
-                  : isLive 
+                  : isLive
                     ? 'Connecting to live stream...'
                     : 'Waiting for teacher to start the live stream'
                 }
