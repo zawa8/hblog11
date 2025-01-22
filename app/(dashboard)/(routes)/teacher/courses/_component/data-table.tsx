@@ -55,26 +55,23 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           className="max-w-sm"
         />
         <div className="flex items-center gap-x-2">
-          {(data as CourseWithSchedule[]).find(course => 
-            course.courseType === 'LIVE' && 
+          {(data as CourseWithSchedule[]).find(course =>
+            course.courseType === 'LIVE' &&
             course.nextSchedule
           ) && (
             (() => {
-              const course = (data as CourseWithSchedule[]).find(course => 
-                course.courseType === 'LIVE' && 
+              const course = (data as CourseWithSchedule[]).find(course =>
+                course.courseType === 'LIVE' &&
                 course.nextSchedule &&
                 (course.isCourseLive && course.isLiveActive)
-              ) || (data as CourseWithSchedule[]).find(course => 
-                course.courseType === 'LIVE' && 
+              ) || (data as CourseWithSchedule[]).find(course =>
+                course.courseType === 'LIVE' &&
                 course.nextSchedule
               )
-              
               if (!course) return null
-              
               const now = new Date()
               const scheduleDate = new Date(course.nextSchedule!.scheduledDate)
               const isWithin10Minutes = now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10
-              
               return (course.isCourseLive && course.isLiveActive) ? (
                 <Link href={`/courses/${course.id}/live-classroom`}>
                   <Button variant="destructive" className="flex items-center gap-x-2">
