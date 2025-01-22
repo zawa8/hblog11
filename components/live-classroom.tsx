@@ -24,7 +24,7 @@ interface Recording {
 export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const { getToken } = useAuth()
   const isMounted = useRef(true)
-  const [axiosInstance, setAxiosInstance] = useState<AxiosInstance>(createAxiosInstance())
+  const [axiosInstance, setAxiosInstance] = useState<AxiosInstance | null>(null)
   const [client, setClient] = useState<IAgoraRTCClient | null>(null)
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
@@ -87,6 +87,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [client, localVideoTrack, localAudioTrack, isConnected])
 
   const joinLiveStream = useCallback(async () => {
+    if (!axiosInstance) {
+      toast.error('Not ready yet. Please try again.')
+      return
+    }
+
     try {
       if (isConnected) {
         console.log('Already connected to stream')
@@ -119,6 +124,8 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
   useEffect(() => {
     const checkLiveStatus = async () => {
+      if (!axiosInstance) return
+
       try {
         console.log('Checking live status...')
         const response = await axiosInstance.get(`/api/courses/${courseId}`)
@@ -147,6 +154,8 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks, axiosInstance])
 
   const fetchRecordings = useCallback(async () => {
+    if (!axiosInstance) return
+
     try {
       const response = await axiosInstance.get(`/api/courses/${courseId}/live/recording`)
       setRecordings(response.data)
@@ -219,6 +228,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [cleanupTracks])
 
   const startLiveStream = async () => {
+    if (!axiosInstance) {
+      toast.error('Not ready yet. Please try again.')
+      return
+    }
+
     try {
       setIsLoading(true)
       console.log('Starting live stream...')
@@ -276,6 +290,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }
 
   const stopLiveStream = async () => {
+    if (!axiosInstance) {
+      toast.error('Not ready yet. Please try again.')
+      return
+    }
+
     try {
       setIsLoading(true)
       console.log('Stopping live stream...')
