@@ -28,6 +28,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [recordings, setRecordings] = useState<Recording[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
 
   const joinLiveStream = useCallback(async () => {
     try {
@@ -45,13 +46,18 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         throw new Error('Video client not initialized')
       }
 
-      await client.join(appId, channelName, token)
-      console.log('Joined live stream as viewer')
+      if (!isConnected) {
+        await client.join(appId, channelName, token)
+        setIsConnected(true)
+        console.log('Joined live stream as viewer')
+      } else {
+        console.log('Already connected to stream')
+      }
     } catch (error: any) {
       console.error('Failed to join stream:', error)
       toast.error('Failed to join live stream')
     }
-  }, [courseId, client])
+  }, [courseId, client, isConnected])
 
   useEffect(() => {
     const checkLiveStatus = async () => {
@@ -62,9 +68,19 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         const isLiveNow = response.data.isCourseLive && response.data.isLiveActive
         setIsLive(isLiveNow)
 
-        // If student and session is live, join the stream
-        if (!isTeacher && isLiveNow && client) {
+        // If student and session is live, join the stream if not already connected
+        if (!isTeacher && isLiveNow && client && !isConnected) {
           joinLiveStream()
+        }
+        
+        // If session is not live but we're connected, clean up
+        if (!isLiveNow && isConnected) {
+          console.log('Stream ended, cleaning up connection')
+          if (client) {
+            await client.leave()
+          }
+          setIsConnected(false)
+          setRemoteVideoTrack(null)
         }
       } catch (error: any) {
         console.error('Status check error:', error)
@@ -81,7 +97,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     const interval = setInterval(checkLiveStatus, 5000)
 
     return () => clearInterval(interval)
-  }, [courseId, client, isTeacher, joinLiveStream])
+  }, [courseId, client, isTeacher, joinLiveStream, isConnected])
 
   const fetchRecordings = useCallback(async () => {
     try {
@@ -148,11 +164,15 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       if (localAudioTrack) {
         localAudioTrack.close()
       }
-      if (client) {
-        client.leave()
+      if (client && isConnected) {
+        client.leave().then(() => {
+          setIsConnected(false)
+        }).catch(error => {
+          console.error('Error leaving stream:', error)
+        })
       }
     }
-  }, [client, localAudioTrack, localVideoTrack])
+  }, [client, localAudioTrack, localVideoTrack, isConnected])
 
   const startLiveStream = async () => {
     try {
@@ -175,8 +195,13 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       // Join channel
       console.log('Joining Agora channel...')
-      await client.join(appId, channelName, token)
-      console.log('Joined Agora channel')
+      if (!isConnected) {
+        await client.join(appId, channelName, token)
+        setIsConnected(true)
+        console.log('Joined Agora channel')
+      } else {
+        console.log('Already connected to channel')
+      }
 
       // Create and publish tracks
       console.log('Creating video and audio tracks...')
@@ -231,8 +256,11 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       console.log('Closing tracks...')
       localVideoTrack?.close()
       localAudioTrack?.close()
-      await client.leave()
-      console.log('Left Agora channel')
+      if (isConnected) {
+        await client.leave()
+        setIsConnected(false)
+        console.log('Left Agora channel')
+      }
 
       // Update backend
       console.log('Updating live session status...')
