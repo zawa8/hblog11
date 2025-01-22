@@ -94,7 +94,7 @@ export async function POST(
       return new NextResponse('Course not found', { status: 404 })
     }
 
-    const isTeacher = course.createdById === userId;
+    const isTeacher = course.createdById === userId
 
     // Validate course type
     if (course.courseType !== 'LIVE') {
