@@ -107,7 +107,6 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         if (!isTeacher && isLiveNow && client && !isConnected) {
           await joinLiveStream()
         }
-        
         if (!isLiveNow && isConnected) {
           console.log('Stream ended, cleaning up connection')
           await cleanupTracks()
