@@ -2,10 +2,12 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack, IRemoteVideoTrack } from 'agora-rtc-sdk-ng'
-import axios from 'axios'
+import { useAuth } from '@clerk/nextjs'
 import MuxPlayer from '@mux/mux-player-react'
 import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/button'
+import { createAxiosInstance } from '@/lib/axios'
+import { AxiosInstance } from 'axios'
 
 interface LiveClassroomProps {
   courseId: string;
@@ -20,7 +22,9 @@ interface Recording {
 }
 
 export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
+  const { getToken } = useAuth()
   const isMounted = useRef(true)
+  const [axiosInstance, setAxiosInstance] = useState<AxiosInstance>(createAxiosInstance)
   const [client, setClient] = useState<IAgoraRTCClient | null>(null)
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null)
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null)
@@ -30,6 +34,16 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   const [recordings, setRecordings] = useState<Recording[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
+
+  useEffect(() => {
+    const initAxios = async () => {
+      const token = await getToken()
+      if (token) {
+        setAxiosInstance(createAxiosInstance(token))
+      }
+    }
+    initAxios()
+  }, [getToken])
 
   const cleanupTracks = useCallback(async () => {
     try {
@@ -75,7 +89,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       }
 
       console.log('Student joining live stream...')
-      const response = await axios.post(`/api/courses/${courseId}/live`, {})
+      const response = await axiosInstance.post(`/api/courses/${courseId}/live`, {})
       console.log('Agora credentials received:', {
         appId: response.data.appId,
         channelName: response.data.channelName,
@@ -102,7 +116,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     const checkLiveStatus = async () => {
       try {
         console.log('Checking live status...')
-        const response = await axios.get(`/api/courses/${courseId}`)
+        const response = await axiosInstance.get(`/api/courses/${courseId}`)
         console.log('Live status response:', response.data)
         const isLiveNow = response.data.isCourseLive && response.data.isLiveActive
         setIsLive(isLiveNow)
@@ -129,7 +143,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
   const fetchRecordings = useCallback(async () => {
     try {
-      const response = await axios.get(`/api/courses/${courseId}/live/recording`)
+      const response = await axiosInstance.get(`/api/courses/${courseId}/live/recording`)
       setRecordings(response.data)
     } catch (error: any) {
       console.error('Fetch recordings error:', error)
@@ -203,7 +217,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     try {
       setIsLoading(true)
       console.log('Starting live stream...')
-      const response = await axios.post(`/api/courses/${courseId}/live`, {})
+      const response = await axiosInstance.post(`/api/courses/${courseId}/live`, {})
       console.log('Agora credentials received:', {
         appId: response.data.appId,
         channelName: response.data.channelName,
@@ -235,7 +249,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       try {
         console.log('Updating course status...')
-        await axios.patch(`/api/courses/${courseId}`, {
+        await axiosInstance.patch(`/api/courses/${courseId}`, {
           isCourseLive: true,
           isLiveActive: true
         })
@@ -269,17 +283,17 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       await cleanupTracks()
 
       console.log('Updating live session status...')
-      await axios.delete(`/api/courses/${courseId}/live`)
+      await axiosInstance.delete(`/api/courses/${courseId}/live`)
 
       console.log('Storing recording...')
-      await axios.post(`/api/courses/${courseId}/live/recording`, {
+      await axiosInstance.post(`/api/courses/${courseId}/live/recording`, {
         recordingUrl,
         title: `Live Session - ${new Date().toLocaleDateString()}`,
       })
 
       try {
         console.log('Updating course status...')
-        await axios.patch(`/api/courses/${courseId}`, {
+        await axiosInstance.patch(`/api/courses/${courseId}`, {
           isCourseLive: false,
           isLiveActive: false
         })
