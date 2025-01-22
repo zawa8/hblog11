@@ -58,18 +58,6 @@ export async function POST(
       return new NextResponse('Invalid maximum participants', { status: 400 })
     }
 
-    // Check if a live session is already in progress
-    const existingLiveSession = await db.course.findFirst({
-      where: {
-        id: courseId,
-        isLiveActive: true
-      }
-    })
-
-    if (existingLiveSession) {
-      return new NextResponse('Live session already in progress', { status: 400 })
-    }
-
     console.log('Finding course:', courseId)
     const course = await db.course.findFirst({
       where: {
@@ -106,31 +94,9 @@ export async function POST(
       return new NextResponse('Course not found', { status: 404 })
     }
 
-    if (!course.schedules?.[0]) {
-      console.error('No upcoming schedule found within time window')
-      return new NextResponse('Cannot start live session - no upcoming schedule found', { status: 400 })
-    }
+    const isTeacher = course.createdById === userId;
 
-    const scheduleDate = new Date(course.schedules[0].scheduledDate)
-    const now = new Date()
-    const isWithin10Minutes = now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10
-
-    if (!isWithin10Minutes) {
-      console.error('Too early to start session', {
-        now: now.toISOString(),
-        scheduleDate: scheduleDate.toISOString()
-      })
-      return new NextResponse('Cannot start live session yet - available 10 minutes before scheduled time', { status: 400 })
-    }
-
-    if (course.createdById !== userId) {
-      console.error('Unauthorized: User is not course creator', {
-        userId,
-        createdById: course.createdById
-      })
-      return new NextResponse('Only the course creator can start a live session', { status: 403 })
-    }
-
+    // Validate course type
     if (course.courseType !== 'LIVE') {
       console.error('Not a live course:', {
         courseId,
@@ -139,6 +105,52 @@ export async function POST(
       })
       return new NextResponse('This course does not support live sessions', { status: 400 })
     }
+
+    // Teacher-specific validations
+    if (isTeacher) {
+      // Check if a live session is already in progress
+      const existingLiveSession = await db.course.findFirst({
+        where: {
+          id: courseId,
+          isLiveActive: true
+        }
+      })
+
+      if (existingLiveSession) {
+        return new NextResponse('Live session already in progress', { status: 400 })
+      }
+
+      if (!course.schedules?.[0]) {
+        console.error('No upcoming schedule found within time window')
+        return new NextResponse('Cannot start live session - no upcoming schedule found', { status: 400 })
+      }
+
+      const scheduleDate = new Date(course.schedules[0].scheduledDate)
+      const now = new Date()
+      const isWithin10Minutes = now.getTime() >= scheduleDate.getTime() - 1000 * 60 * 10
+
+      if (!isWithin10Minutes) {
+        console.error('Too early to start session', {
+          now: now.toISOString(),
+          scheduleDate: scheduleDate.toISOString()
+        })
+        return new NextResponse('Cannot start live session yet - available 10 minutes before scheduled time', { status: 400 })
+      }
+    } else {
+      // Student-specific validations
+      // Check if there's an active session to join
+      const activeLiveSession = await db.course.findFirst({
+        where: {
+          id: courseId,
+          isLiveActive: true
+        }
+      })
+
+      if (!activeLiveSession) {
+        return new NextResponse('No active live session to join', { status: 400 })
+      }
+    }
+
     // Check participant limit for non-teacher users
     if (course?.createdById !== userId && course?.maxParticipants) {
       const participantCount = course.purchases.length
