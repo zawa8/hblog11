@@ -29,8 +29,8 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   useEffect(() => {
     const checkLiveStatus = async () => {
       try {
-        const response = await axios.get(`/api/courses/${courseId}`)
-        setIsLive(response.data.isCourseLive || false)
+      const response = await axios.get(`/api/courses/${courseId}`)
+      setIsLive(response.data.isLiveActive || false)
       } catch (error) {
         toast.error('Failed to check live status')
       } finally {
@@ -100,7 +100,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       setLocalAudioTrack(audioTrack)
       // Update course live status
       await axios.patch(`/api/courses/${courseId}`, {
-        isCourseLive: true
+        isLiveActive: true
       })
       setIsLive(true)
 
@@ -139,7 +139,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       setLocalAudioTrack(null)
       // Update course live status
       await axios.patch(`/api/courses/${courseId}`, {
-        isCourseLive: false
+        isLiveActive: false
       })
       setIsLive(false)
 
