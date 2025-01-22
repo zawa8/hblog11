@@ -43,12 +43,12 @@ const LiveClassroomPage = ({ params }: PageProps) => {
           return redirect('/?error=no_token')
         }
 
-        let response;
+        let response
         try {
           response = await fetch(`/api/courses/${params.courseId}`, {
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
+              Authorization: `Bearer ${token}`
             }
           })
         } catch (error) {

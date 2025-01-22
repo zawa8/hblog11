@@ -151,12 +151,10 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     }
 
     let interval: NodeJS.Timeout | null = null
-    
     if (isReady && axiosInstanceRef.current) {
       checkLiveStatus()
       interval = setInterval(checkLiveStatus, 5000)
     }
-    
     return () => {
       if (interval) {
         clearInterval(interval)
