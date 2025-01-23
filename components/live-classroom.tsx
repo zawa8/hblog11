@@ -76,14 +76,14 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       }
       if (client && isConnected) {
         try {
-          await client.leave();
+          await client.leave()
         } catch (error) {
-          console.error('Error leaving client:', error);
+          console.error('Error leaving client:', error)
         }
-        setIsConnected(false);
+        setIsConnected(false)
       }
     } catch (error) {
-      console.error('Cleanup error:', error);
+      console.error('Cleanup error:', error)
     }
   }, [client, localVideoTrack, localAudioTrack, isConnected])
 
@@ -101,7 +101,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
       console.log('Student joining live stream...')
       const response = await axiosInstanceRef.current.post(`/api/courses/${courseId}/live`, {})
-      if (!isMounted.current) return;
+      if (!isMounted.current) return
 
       console.log('Agora credentials received:', {
         appId: response.data.appId,
@@ -121,7 +121,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         console.log('Joined live stream as viewer')
       }
     } catch (error: any) {
-      if (!isMounted.current) return;
+      if (!isMounted.current) return
       console.error('Failed to join stream:', error)
       toast.error('Failed to join live stream')
       await cleanupTracks()
@@ -129,15 +129,14 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [courseId, client, isConnected, cleanupTracks, isReady])
 
   useEffect(() => {
-    let isMounted = true;
+    let isMounted = true
     const checkLiveStatus = async () => {
-      if (!isReady || !axiosInstanceRef.current || !isMounted) return;
+      if (!isReady || !axiosInstanceRef.current || !isMounted) return
 
       try {
         console.log('Checking live status...')
         const response = await axiosInstanceRef.current.get(`/api/courses/${courseId}`)
-        if (!isMounted) return;
-        
+        if (!isMounted) return
         console.log('Live status response:', response.data)
         const isLiveNow = response.data.isCourseLive && response.data.isLiveActive
         setIsLive(isLiveNow)
@@ -150,7 +149,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
           await cleanupTracks()
         }
       } catch (error: any) {
-        if (!isMounted) return;
+        if (!isMounted) return
         console.error('Status check error:', error)
         toast.error(error?.response?.data || error?.message || 'Failed to check live status')
       } finally {
@@ -166,7 +165,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       interval = setInterval(checkLiveStatus, 5000)
     }
     return () => {
-      isMounted = false;
+      isMounted = false
       if (interval) {
         clearInterval(interval)
       }
@@ -174,38 +173,38 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
   }, [courseId, client, isTeacher, joinLiveStream, isConnected, cleanupTracks, isReady])
 
   const fetchRecordings = useCallback(async () => {
-    if (!isReady || !axiosInstanceRef.current || !isMounted.current) return;
+    if (!isReady || !axiosInstanceRef.current || !isMounted.current) return
 
     try {
-      const response = await axiosInstanceRef.current.get(`/api/courses/${courseId}/live/recording`);
+      const response = await axiosInstanceRef.current.get(`/api/courses/${courseId}/live/recording`)
       if (isMounted.current) {
-        setRecordings(response.data);
+        setRecordings(response.data)
       }
     } catch (error: any) {
       if (isMounted.current) {
-        console.error('Fetch recordings error:', error);
-        toast.error(error?.response?.data || error?.message || 'Failed to fetch recordings');
+        console.error('Fetch recordings error:', error)
+        toast.error(error?.response?.data || error?.message || 'Failed to fetch recordings')
       }
     }
-  }, [courseId, isReady]);
+  }, [courseId, isReady])
 
   useEffect(() => {
     if (isReady && axiosInstanceRef.current) {
-      fetchRecordings();
+      fetchRecordings()
     }
   }, [fetchRecordings, isReady]);
 
   useEffect(() => {
-    let isMounted = true;
+    let isMounted = true
     const initAgora = async () => {
-      if (!isMounted) return;
+      if (!isMounted) return
       try {
         console.log('Initializing Agora client...')
         const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' })
 
         if (!isTeacher && isMounted) {
           agoraClient.on('user-published', async (user, mediaType) => {
-            if (!isMounted) return;
+            if (!isMounted) return
             try {
               await agoraClient.subscribe(user, mediaType)
               console.log('Subscribed to teacher stream:', mediaType)
@@ -223,13 +222,13 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
                 }
               }
             } catch (error) {
-              if (!isMounted) return;
+              if (!isMounted) return
               console.error('Subscribe error:', error)
             }
           })
 
           agoraClient.on('user-unpublished', (user, mediaType) => {
-            if (!isMounted) return;
+            if (!isMounted) return
             console.log('Teacher stopped streaming:', mediaType)
             if (mediaType === 'video') {
               setRemoteVideoTrack(null)
@@ -242,7 +241,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
           console.log('Agora client initialized')
         }
       } catch (error: any) {
-        if (!isMounted) return;
+        if (!isMounted) return
         console.error('Agora init error:', error)
         toast.error('Failed to initialize video client')
       }
@@ -250,7 +249,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
 
     initAgora()
     return () => {
-      isMounted = false;
+      isMounted = false
       cleanupTracks()
     }
   }, [isTeacher, cleanupTracks])
@@ -272,8 +271,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       if (isMounted.current) setIsLoading(true)
       console.log('Starting live stream...')
       const response = await axiosInstanceRef.current.post(`/api/courses/${courseId}/live`, {})
-      if (!isMounted.current) return;
-
+      if (!isMounted.current) return
       console.log('Agora credentials received:', {
         appId: response.data.appId,
         channelName: response.data.channelName,
@@ -297,9 +295,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack()
 
       if (!isMounted.current) {
-        await videoTrack.close();
-        await audioTrack.close();
-        return;
+        await videoTrack.close()
+        await audioTrack.close()
+        return
       }
 
       console.log('Publishing tracks...')
@@ -310,9 +308,9 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         setLocalVideoTrack(videoTrack)
         setLocalAudioTrack(audioTrack)
       } else {
-        await videoTrack.close();
-        await audioTrack.close();
-        return;
+        await videoTrack.close()
+        await audioTrack.close()
+        return
       }
 
       try {
@@ -332,7 +330,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
         throw new Error(error?.response?.data || error?.message || 'Failed to update course status')
       }
     } catch (error: any) {
-      if (!isMounted.current) return;
+      if (!isMounted.current) return
       console.error('Live stream error:', error)
       toast.error(error?.response?.data || error?.message || 'Failed to start live stream')
       await cleanupTracks()
@@ -357,18 +355,18 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       const recordingUrl = 'https://example.com/recording.mp4'
 
       await cleanupTracks()
-      if (!isMounted.current) return;
+      if (!isMounted.current) return
 
       console.log('Updating live session status...')
       await axiosInstanceRef.current.delete(`/api/courses/${courseId}/live`)
-      if (!isMounted.current) return;
+      if (!isMounted.current) return
 
       console.log('Storing recording...')
       await axiosInstanceRef.current.post(`/api/courses/${courseId}/live/recording`, {
         recordingUrl,
         title: `Live Session - ${new Date().toLocaleDateString()}`,
       })
-      if (!isMounted.current) return;
+      if (!isMounted.current) return
 
       try {
         console.log('Updating course status...')
@@ -382,14 +380,14 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
           console.log('Live stream ended successfully')
         }
       } catch (error: any) {
-        if (!isMounted.current) return;
+        if (!isMounted.current) return
         console.error('Status update error:', error)
         toast.error(error?.response?.data || error?.message || 'Failed to update course status')
         throw error
       }
       if (isMounted.current) fetchRecordings()
     } catch (error: any) {
-      if (!isMounted.current) return;
+      if (!isMounted.current) return
       console.error('Stop stream error:', error)
       toast.error(error?.response?.data || error?.message || 'Failed to stop live stream')
     } finally {

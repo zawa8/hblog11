@@ -45,7 +45,6 @@ const LiveClassroomPage = ({ params }: PageProps) => {
 
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
-        
         let response
         try {
           response = await fetch(`/api/courses/${params.courseId}`, {
