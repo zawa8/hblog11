@@ -192,7 +192,7 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
     if (isReady && axiosInstanceRef.current) {
       fetchRecordings()
     }
-  }, [fetchRecordings, isReady]);
+  }, [fetchRecordings, isReady])
 
   useEffect(() => {
     let isMounted = true
