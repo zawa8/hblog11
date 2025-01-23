@@ -43,14 +43,19 @@ const LiveClassroomPage = ({ params }: PageProps) => {
           return redirect('/?error=no_token')
         }
 
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
+        
         let response
         try {
           response = await fetch(`/api/courses/${params.courseId}`, {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`
-            }
+            },
+            signal: controller.signal
           })
+          clearTimeout(timeoutId)
         } catch (error) {
           console.error('Network error:', error)
           // Retry with exponential backoff and jitter

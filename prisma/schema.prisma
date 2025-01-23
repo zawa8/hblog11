@@ -22,9 +22,9 @@ model Course {
   agoraToken       String?
   courseType       CourseType             @default(RECORDED)
   isLiveActive     Boolean                @default(false)
-  isCourseLive     Boolean                @default(false)
   nextLiveDate     DateTime?
   maxParticipants  Int?
+  isCourseLive     Boolean                @default(false)
   attachments      Attachment[]
   chapters         Chapter[]
   category         Category?              @relation(fields: [categoryId], references: [id])

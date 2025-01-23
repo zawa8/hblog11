@@ -76,15 +76,14 @@ export const LiveClassroom = ({ courseId, isTeacher }: LiveClassroomProps) => {
       }
       if (client && isConnected) {
         try {
-          await client.leave()
+          await client.leave();
         } catch (error) {
-          console.error('Error leaving client:', error)
+          console.error('Error leaving client:', error);
         }
-        setIsConnected(false)
+        setIsConnected(false);
       }
-        try {
     } catch (error) {
-      console.error('Cleanup error:', error)
+      console.error('Cleanup error:', error);
     }
   }, [client, localVideoTrack, localAudioTrack, isConnected])
 
