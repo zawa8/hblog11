@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 import localFont from 'next/font/local'
 export const binarywenglosoftw8asc = localFont({ src: './fonts/hscii/englosoftw8/englosoftw8asc/binarywenglosoftw8asc.woff2', display: 'swap', })
 export const heksenglosoftw8asc = localFont({ src: './fonts/hscii/englosoftw8/englosoftw8asc/heksenglosoftw8asc.woff2', display: 'swap', })
@@ -157,34 +158,51 @@ export const sinhalaonlyw8asc = localFont({ src: './fonts/hscii/onlyw8/onlyw8asc
 // export const sinhalaonlyw8utf = localFont({ src: './fonts/hscii/onlyw8/onlyw8utf/sinhalaonlyw8utf.woff2', display: 'swap', })
 
 // onlyw8 up }>>>>>>>>>>>>>>>>>>>>
-export const hsciifont_classnames : { [key: string]: string }= {
-	binarywenglosoftw8asc:binarywenglosoftw8asc.className, heksenglosoftw8asc:heksenglosoftw8asc.className,
-	// englosoftw8 bilo
-	// englosoftw8 asc bilo <<<<<<<<<<<<<<<<<<<<
-	inglishenglosoftw8asc:inglishenglosoftw8asc.className, russianenglosoftw8asc:russianenglosoftw8asc.className, koreanenglosoftw8asc:koreanenglosoftw8asc.className,
-	teluguenglosoftw8asc:teluguenglosoftw8asc.className, kannadaenglosoftw8asc:kannadaenglosoftw8asc.className,
-	tamilenglosoftw8asc:tamilenglosoftw8asc.className, malayalamenglosoftw8asc:malayalamenglosoftw8asc.className, sinhalaenglosoftw8asc:sinhalaenglosoftw8asc.className,
-	hindienglosoftw8asc:hindienglosoftw8asc.className, gurmukhienglosoftw8asc:gurmukhienglosoftw8asc.className, guzratienglosoftw8asc:guzratienglosoftw8asc.className,
-	banglaenglosoftw8asc:banglaenglosoftw8asc.className, oriyaenglosoftw8asc:oriyaenglosoftw8asc.className,
-	// { englosoftw8 mono bilo <<<<<<<<<<<<<<<<<<<<
-	// inglishenglosoftw8mono:inglishenglosoftw8mono.className, russianenglosoftw8mono:russianenglosoftw8mono.className, koreanenglosoftw8mono:koreanenglosoftw8mono.className,
-	// teluguenglosoftw8mono:teluguenglosoftw8mono.className, kannadaenglosoftw8mono:kannadaenglosoftw8mono.className,
-	// tamilenglosoftw8mono:tamilenglosoftw8mono.className, malayalamenglosoftw8mono:malayalamenglosoftw8mono.className, sinhalaenglosoftw8mono:sinhalaenglosoftw8mono.className,
-	// hindienglosoftw8mono:hindienglosoftw8mono.className, gurmukhienglosoftw8mono:gurmukhienglosoftw8mono.className, guzratienglosoftw8mono:guzratienglosoftw8mono.className,
-	// banglaenglosoftw8mono:banglaenglosoftw8mono.className, oriyaenglosoftw8mono:oriyaenglosoftw8mono.className,
+export const hsciifont_classnames : { [key: string]: string } = {
+binarywenglosoftw8asc: binarywenglosoftw8asc.className,
+heksenglosoftw8asc: heksenglosoftw8asc.className,
+// englosoftw8 bilo
+// englosoftw8 asc bilo <<<<<<<<<<<<<<<<<<<<
+inglishenglosoftw8asc: inglishenglosoftw8asc.className,
+russianenglosoftw8asc: russianenglosoftw8asc.className,
+koreanenglosoftw8asc: koreanenglosoftw8asc.className,
+teluguenglosoftw8asc: teluguenglosoftw8asc.className,
+kannadaenglosoftw8asc: kannadaenglosoftw8asc.className,
+tamilenglosoftw8asc: tamilenglosoftw8asc.className,
+malayalamenglosoftw8asc: malayalamenglosoftw8asc.className,
+sinhalaenglosoftw8asc: sinhalaenglosoftw8asc.className,
+hindienglosoftw8asc: hindienglosoftw8asc.className,
+gurmukhienglosoftw8asc: gurmukhienglosoftw8asc.className,
+guzratienglosoftw8asc: guzratienglosoftw8asc.className,
+banglaenglosoftw8asc: banglaenglosoftw8asc.className,
+oriyaenglosoftw8asc: oriyaenglosoftw8asc.className,
+// { englosoftw8 mono bilo <<<<<<<<<<<<<<<<<<<<
+// inglishenglosoftw8mono:inglishenglosoftw8mono.className, russianenglosoftw8mono:russianenglosoftw8mono.className, koreanenglosoftw8mono:koreanenglosoftw8mono.className,
+// teluguenglosoftw8mono:teluguenglosoftw8mono.className, kannadaenglosoftw8mono:kannadaenglosoftw8mono.className,
+// tamilenglosoftw8mono:tamilenglosoftw8mono.className, malayalamenglosoftw8mono:malayalamenglosoftw8mono.className, sinhalaenglosoftw8mono:sinhalaenglosoftw8mono.className,
+// hindienglosoftw8mono:hindienglosoftw8mono.className, gurmukhienglosoftw8mono:gurmukhienglosoftw8mono.className, guzratienglosoftw8mono:guzratienglosoftw8mono.className,
+// banglaenglosoftw8mono:banglaenglosoftw8mono.className, oriyaenglosoftw8mono:oriyaenglosoftw8mono.className,
 
-	// onlyw8 bilo
-	// onlyw8 asc bilo <<<<<<<<<<<<<<<<<<<<
-	inglishonlyw8asc:inglishonlyw8asc.className, russianonlyw8asc:russianonlyw8asc.className, koreanonlyw8asc:koreanonlyw8asc.className,
-	teluguonlyw8asc:teluguonlyw8asc.className, kannadaonlyw8asc:kannadaonlyw8asc.className,
-	tamilonlyw8asc:tamilonlyw8asc.className, malayalamonlyw8asc:malayalamonlyw8asc.className, sinhalaonlyw8asc:sinhalaonlyw8asc.className,
-	hindionlyw8asc:hindionlyw8asc.className, gurmukhionlyw8asc:gurmukhionlyw8asc.className, guzrationlyw8asc:guzrationlyw8asc.className,
-	banglaonlyw8asc:banglaonlyw8asc.className, oriyaonlyw8asc:oriyaonlyw8asc.className,
+// onlyw8 bilo
+// onlyw8 asc bilo <<<<<<<<<<<<<<<<<<<<
+inglishonlyw8asc: inglishonlyw8asc.className,
+russianonlyw8asc: russianonlyw8asc.className,
+koreanonlyw8asc: koreanonlyw8asc.className,
+teluguonlyw8asc: teluguonlyw8asc.className,
+kannadaonlyw8asc: kannadaonlyw8asc.className,
+tamilonlyw8asc: tamilonlyw8asc.className,
+malayalamonlyw8asc: malayalamonlyw8asc.className,
+sinhalaonlyw8asc: sinhalaonlyw8asc.className,
+hindionlyw8asc: hindionlyw8asc.className,
+gurmukhionlyw8asc: gurmukhionlyw8asc.className,
+guzrationlyw8asc: guzrationlyw8asc.className,
+banglaonlyw8asc: banglaonlyw8asc.className,
+oriyaonlyw8asc: oriyaonlyw8asc.className,
 
-	// onlyw8 mono bilo <<<<<<<<<<<<<<<<<<<<
-	// inglishonlyw8mono:inglishonlyw8mono.className, russianonlyw8mono:russianonlyw8mono.className, koreanonlyw8mono:koreanonlyw8mono.className,
-	// teluguonlyw8mono:teluguonlyw8mono.className, kannadaonlyw8mono:kannadaonlyw8mono.className,
-	// tamilonlyw8mono:tamilonlyw8mono.className, malayalamonlyw8mono:malayalamonlyw8mono.className, sinhalaonlyw8mono:sinhalaonlyw8mono.className,
-	// hindionlyw8mono:hindionlyw8mono.className, gurmukhionlyw8mono:gurmukhionlyw8mono.className, guzrationlyw8mono:guzrationlyw8mono.className,
-	// banglaonlyw8mono:banglaonlyw8mono.className, oriyaonlyw8mono:oriyaonlyw8mono.className,
+// onlyw8 mono bilo <<<<<<<<<<<<<<<<<<<<
+// inglishonlyw8mono:inglishonlyw8mono.className, russianonlyw8mono:russianonlyw8mono.className, koreanonlyw8mono:koreanonlyw8mono.className,
+// teluguonlyw8mono:teluguonlyw8mono.className, kannadaonlyw8mono:kannadaonlyw8mono.className,
+// tamilonlyw8mono:tamilonlyw8mono.className, malayalamonlyw8mono:malayalamonlyw8mono.className, sinhalaonlyw8mono:sinhalaonlyw8mono.className,
+// hindionlyw8mono:hindionlyw8mono.className, gurmukhionlyw8mono:gurmukhionlyw8mono.className, guzrationlyw8mono:guzrationlyw8mono.className,
+// banglaonlyw8mono:banglaonlyw8mono.className, oriyaonlyw8mono:oriyaonlyw8mono.className,
 }

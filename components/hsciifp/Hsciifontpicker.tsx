@@ -8,15 +8,15 @@ const Hsciifontpicker = () => {
     if (curr_selected_fitem) { setBodyFont(curr_selected_fitem) }
   }
   const setBodyFont = (selected_hsciifont_name: string) => {
-    document.body.classList.value = document.body.classList.value.replaceAll(/__className_\w+\s+antialiased/g, "")
-    document.body.classList.value = document.body.classList.value.replaceAll(/antialiased\s+__className_\w+/g, "")
+    document.body.classList.value = document.body.classList.value.replaceAll(/__className_\w+\s+antialiased/g, '')
+    document.body.classList.value = document.body.classList.value.replaceAll(/antialiased\s+__className_\w+/g, '')
     document.body.classList.add(hsciifont_classnames[selected_hsciifont_name])
-    document.body.classList.add("antialiased")
+    document.body.classList.add('antialiased')
   }
   return (
     <div>
       <Select onValueChange={handle_fitem_change}>
-        <SelectTrigger className="w-[180px] mt-4"> <SelectValue placeholder="hscii_font=>select" /> </SelectTrigger>
+        <SelectTrigger className='w-[180px] mt-4'> <SelectValue placeholder='hscii_font=>select' /> </SelectTrigger>
         <SelectContent>
           {fgioptions.map((fgioption) => (
             <SelectItem key={fgioption.walue} value={fgioption.walue}>
