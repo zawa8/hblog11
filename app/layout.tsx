@@ -1,13 +1,11 @@
 import type { Metadata } from 'next'
-// import { Inter } from 'next/font/google'
-import { inglishenglosoftw8asc } from "@/components/hsciifp/hsciifonts";
-import './globals.css'
 import { ClerkProvider } from '@clerk/nextjs'
+import './globals.css'
 import { ToastProvider } from '@/components/providers/toaster-provider'
 import { ConfettiProvider } from '@/components/providers'
-import Hsciifontpicker from '@/components/hsciifp/Hsciifontpicker';
 
-// const inter = Inter({ subsets: ['latin'] })
+import { inglishenglosoftw8asc } from '@/components/hsciifp/hsciifonts'
+import Hsciifontpicker from '@/components/hsciifp/Hsciifontpicker'
 
 export const metadata: Metadata = {
   title: 'LMS (Learning Management System)',

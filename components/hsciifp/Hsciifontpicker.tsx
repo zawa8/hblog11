@@ -1,7 +1,7 @@
-"use client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import fgioptions from "./fgioptions_sel.json";
-import { hsciifont_classnames } from "./hsciifonts";
+'use client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import fgioptions from './fgioptions_sel.json'
+import { hsciifont_classnames } from './hsciifonts'
 
 const Hsciifontpicker = () => {
   const handle_fitem_change = (curr_selected_fitem: string) => {
