@@ -1,9 +1,11 @@
 import { Navbar } from '../(dashboard)/_components/navbar'
 import Sidebar from '../(dashboard)/_components/sidebar'
+import Hsciifontpicker from '@/components/hsciifp/Hsciifontpicker'
 
 const CourseLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="h-full">
+      <Hsciifontpicker/>
       <div className="fixed inset-y-0 z-50 h-[80px] w-full md:pl-56">
         <Navbar />
       </div>
