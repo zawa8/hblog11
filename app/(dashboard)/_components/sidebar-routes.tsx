@@ -7,12 +7,12 @@ import { SidebarItem } from './sidebar-item'
 const guestRoutes = [
   {
     icon: Layout,
-    label: 'Dashboard',
+    label: 'dxshboxrd',
     href: '/',
   },
   {
     icon: Compass,
-    label: 'Browse',
+    label: 'browse',
     href: '/search',
   },
 ]
@@ -20,12 +20,12 @@ const guestRoutes = [
 const teacherRoutes = [
   {
     icon: List,
-    label: 'Courses',
+    label: 'courses',
     href: '/teacher/courses',
   },
   {
     icon: BarChart,
-    label: 'Analytics',
+    label: 'xnxlytics',
     href: '/teacher/analytics',
   },
 ]

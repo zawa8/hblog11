@@ -16,8 +16,8 @@ export default async function Analytics() {
   return (
     <div className="p-6">
       <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-        <DataCard label="Total Revenue" value={totalRevenue} shouldFormat />
-        <DataCard label="Total Sales" value={totalSales} />
+        <DataCard label="totxl rewenue" value={totalRevenue} shouldFormat />
+        <DataCard label="Totxl Sxles" value={totalSales} />
       </div>
 
       <Chart data={data} />

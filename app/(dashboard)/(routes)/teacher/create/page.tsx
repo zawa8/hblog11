@@ -17,13 +17,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 const formSchema = z.object({
   title: z.string().min(1, {
-    message: 'Title is required',
+    message: 'title rekuired hei',
   }),
   categoryId: z.string().min(1, {
-    message: 'Category is required',
+    message: 'category rekuired hei',
   }),
   courseType: z.enum(['RECORDED', 'LIVE'], {
-    required_error: 'Course type is required',
+    required_error: 'course type is rekuired',
   }),
   maxParticipants: z.number().min(1).optional(),
   nextLiveDate: z.string().optional(),
@@ -33,7 +33,7 @@ const formSchema = z.object({
   }
   return true
 }, {
-  message: 'Max participants and next live date are required for live courses',
+  message: 'liwe courses ke liye mxks participxnts xnd nekst liwe dxte rekuired hei.',
   path: ['courseType'],
 })
 
@@ -82,9 +82,9 @@ const CreatePage = () => {
 
       const response = await axios.post('/api/courses', values)
       router.push(`/teacher/courses/${response.data.id}`)
-      toast.success('Course created')
+      toast.success('course crexted')
     } catch {
-      toast.error('Something went wrong')
+      toast.error('someJiNg went wroNg')
     }
   }
 
@@ -179,7 +179,7 @@ const CreatePage = () => {
                           onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : '')}
                         />
                       </FormControl>
-                      <FormDescription>Set the maximum number of students that can join this live course</FormDescription>
+                      <FormDescription>liwe course ko zoin krne ke liye mxksimum nmbr of students set kre</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -189,7 +189,7 @@ const CreatePage = () => {
                   name='nextLiveDate'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Live Session Date</FormLabel>
+                      <FormLabel>liwe session dxte</FormLabel>
                       <FormControl>
                         <Input
                           type="date"
@@ -197,7 +197,7 @@ const CreatePage = () => {
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>Select the date for the live session. You will specify the time in the Course Schedule section after creation.</FormDescription>
+                      <FormDescription>liwe session ke liye dxte selekt kre. jumhe course schedule section me time set krna hoga.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

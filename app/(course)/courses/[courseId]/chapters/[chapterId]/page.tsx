@@ -31,8 +31,8 @@ const isLiveCourse = course.courseType === 'LIVE'
   return (
     <div className="p-6">
           <div className="mb-4">
-        {userProgress?.isCompleted ? <Banner label="You already completed this chapter" variant="success" /> : null}
-        {isLocked ? <Banner label="You need to purchase this course to watch this chapter" /> : null}
+        {userProgress?.isCompleted ? <Banner label="yu alrexdy completed qis chxpter" variant="success" /> : null}
+        {isLocked ? <Banner label="yu need to purchxse qis course to watch qis chxpter" /> : null}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
         <div className="md:col-span-3">

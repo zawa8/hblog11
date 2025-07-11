@@ -39,7 +39,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { courseId: 
     }
 
     const isContentValid = course?.courseType === 'LIVE'
-      ? schedules.length > 0 // Live courses need at least one schedule entry
+      ? schedules.length > 0 // liwe courses need at least one schedule entry
       : course?.chapters.some((chapter) => chapter.isPublished) // Recorded courses need at least one published chapter
 
     if (!course.title || !course.description || !course.imageUrl || !course.categoryId || !isContentValid) {

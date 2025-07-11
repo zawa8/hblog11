@@ -93,15 +93,15 @@ export const Categories = ({ items }: CategoriesProps) => {
               <span>{selectedItem.name}</span>
             </div>
           ) : (
-            'Select Fraternity...'
+            'select frxternity...'
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full md:w-[300px] p-0 rounded-full">
         <Command>
-          <CommandInput placeholder="Search fraternity..." />
-          <CommandEmpty>No fraternity found.</CommandEmpty>
+          <CommandInput placeholder="search frxternity..." />
+          <CommandEmpty>no frxternity found.</CommandEmpty>
           <CommandGroup>
             <CommandItem
               value=""
@@ -114,7 +114,7 @@ export const Categories = ({ items }: CategoriesProps) => {
                   !value ? 'opacity-100' : 'opacity-0'
                 )}
               />
-              All Fraternity
+              all frxternity
             </CommandItem>
             {items.map((item) => (
               <CommandItem

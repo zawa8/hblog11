@@ -46,7 +46,7 @@ const ChapterIdPage = async ({ params }: { params: { courseId: string; chapterId
   return (
     <>
       {!chapter.isPublished && (
-        <Banner variant="warning" label="This chapter is unpublished. It will not be visible in the course" />
+        <Banner variant="warning" label="qis chxpter is unpublished. It will not be wisible in q course" />
       )}
       <div className="p-6">
         <div className="flex items-center justify-between">

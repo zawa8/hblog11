@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/popover'
 
 const courseTypes = [
-  { id: 'LIVE', name: 'Live Courses', icon: MdLiveTv },
-  { id: 'RECORDED', name: 'Recorded Courses', icon: FaVideo },
+  { id: 'LIVE', name: 'liwe courses', icon: MdLiveTv },
+  { id: 'RECORDED', name: 'recorded courses', icon: FaVideo },
 ]
 
 export const CourseType = () => {
@@ -88,7 +88,7 @@ export const CourseType = () => {
               <span>{selectedItem.name}</span>
             </div>
           ) : (
-            'All Courses'
+            'all courses'
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -107,7 +107,7 @@ export const CourseType = () => {
                   !value ? 'opacity-100' : 'opacity-0'
                 )}
               />
-              All Courses
+              all courses
             </CommandItem>
             {courseTypes.map((type) => (
               <CommandItem

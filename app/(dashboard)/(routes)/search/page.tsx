@@ -7,7 +7,6 @@ import { CourseType } from './_component/course-type'
 import { SearchInput } from '@/components/search-input'
 import { getCourses } from '@/actions/get-courses'
 import CoursesList from '@/components/course-list'
-import Hsciifontpicker from '@/components/hsciifp/Hsciifontpicker'
 
 interface SearchPageProps {
   searchParams: {
@@ -38,7 +37,6 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
   return (
     <>
       <div className="space-y-4 p-6">
-        <Hsciifontpicker />
         <div className="flex flex-col gap-y-2 md:flex-row md:gap-x-2">
           <div className="md:hidden">
             <SearchInput />

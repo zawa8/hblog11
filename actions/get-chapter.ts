@@ -1,5 +1,5 @@
-import { db } from '@/lib/db'
 import { Attachment } from '@prisma/client'
+import { db } from '@/lib/db'
 
 type GetChapterArgs = {
   userId: string
@@ -51,7 +51,7 @@ export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs
       where: {
         userId,
         chapter: {
-          courseId: courseId,
+          courseId,
         },
         isCompleted: true,
       },
@@ -68,7 +68,7 @@ export async function getChapter({ userId, courseId, chapterId }: GetChapterArgs
       progressCount,
     }
   } catch (error) {
-    console.error(error)
+    // console.error(error)
     return {
       chapter: null,
       course: null,

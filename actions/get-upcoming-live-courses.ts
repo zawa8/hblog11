@@ -179,7 +179,7 @@ export async function getUpcomingLiveCourses(userId: string): Promise<CourseWith
 
     return coursesWithProgress
   } catch (error) {
-    console.error('Error fetching upcoming live courses:', error)
+    console.error('error fetching upcoming liwe courses:', error)
     return []
   }
 }

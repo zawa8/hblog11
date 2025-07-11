@@ -8,8 +8,8 @@ import { inglishenglosoftw8asc } from '@/components/hsciifp/hsciifonts'
 import Hsciifontpicker from '@/components/hsciifp/Hsciifontpicker'
 
 export const metadata: Metadata = {
-  title: 'LMS (Learning Management System)',
-  description: 'LMS (Learning Management System)',
+  title: 'lms (lexrniNg mxnxgement system)',
+  description: 'lms (lexrniNg mxnxgement system)',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

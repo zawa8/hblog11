@@ -4,7 +4,6 @@ import { useState } from 'react'
 import CoursesList from '@/components/course-list'
 import { WelcomeBanner } from '@/components/welcome-banner'
 import { CourseWithProgressAndCategory } from '@/actions/get-courses'
-import Hsciifontpicker from '@/components/hsciifp/Hsciifontpicker'
 
 interface DashboardContentProps {
   initialData: {
@@ -36,7 +35,6 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
 
   return (
     <div className="space-y-6 p-6">
-      <Hsciifontpicker />
       <WelcomeBanner
         userId={initialData.userId}
         fullName={initialData.fullName}

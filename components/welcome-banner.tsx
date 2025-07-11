@@ -26,7 +26,7 @@ const StatsCards = ({
       <div onClick={() => onFilterChange(activeFilter === 'in-progress' ? null : 'in-progress')} className="cursor-pointer">
         <InfoCard
           icon={Clock}
-          label="In Progress"
+          label="in progress"
           numberOfItems={coursesInProgress.length}
           isActive={activeFilter === 'in-progress'}
         />
@@ -43,7 +43,7 @@ const StatsCards = ({
       <div onClick={() => onFilterChange(activeFilter === 'upcoming' ? null : 'upcoming')} className="cursor-pointer">
         <InfoCard
           icon={Calendar}
-          label="Upcoming Live"
+          label="Upcoming liwe"
           numberOfItems={upcomingLiveCount}
           isActive={activeFilter === 'upcoming'}
         />
@@ -85,24 +85,24 @@ export const WelcomeBanner = ({
         <div className="space-y-2">
           <div className="space-y-1">
             <p className="text-2xl font-medium">
-              Welcome Back
+              swagjm jum wapis aae
             </p>
             <h1 className="text-3xl font-bold">
               <span className="text-violet-600">
-                {fullName}
+                nmxsje {fullName}
               </span>
             </h1>
           </div>
           <p className="text-muted-foreground text-base">
-            Let&apos;s begin learning where you left off,
+            clo wha se Suru kre zva se left-off kiya Ja
           </p>
           <p className="text-muted-foreground text-base">
-            Keep it up and improve your progress
+            keep it up xnd improwe your progress
           </p>
         </div>
       </div>
       <div className="space-y-2 w-full md:w-auto md:flex-1 md:max-w-[800px] lg:max-w-[1000px]">
-        <p className="text-sm text-muted-foreground">Click cards below to filter your courses</p>
+        <p className="text-sm text-muted-foreground">Click kards below to filter your courses</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <StatsCards
             userId={userId}

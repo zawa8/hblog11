@@ -1,7 +1,7 @@
+import { clerkClient } from '@clerk/nextjs'
 import { db } from '@/lib/db'
 import { getProgress } from './get-progress'
 import { CourseWithProgressAndCategory } from './get-courses'
-import { clerkClient } from '@clerk/nextjs'
 
 type Schedule = {
   id: string
@@ -71,31 +71,27 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
 
     const courses = await Promise.all(
       purchasedCourses.map(async (purchase: PurchasedCourse) => {
-        const course = purchase.course;
-        let teacher;
+        const course = purchase.course
+        let teacher
         try {
-          teacher = await clerkClient.users.getUser(course.createdById);
+          teacher = await clerkClient.users.getUser(course.createdById)
         } catch (error) {
-          console.error(`Error fetching teacher for course ${course.id}:`, error);
-          teacher = null;
+          // console.error(`Error fetching teacher for course ${course.id}:`, error)
+          teacher = null
         }
         return {
           ...course,
           schedules: course.schedules
             .filter((schedule: Schedule) => new Date(schedule.scheduledDate) > new Date())
-            .sort((a: Schedule, b: Schedule) => 
-              new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
-            ),
+            .sort((a: Schedule, b: Schedule) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()),
           nextLiveDate: course.schedules
             .filter((schedule: Schedule) => new Date(schedule.scheduledDate) > new Date())
-            .sort((a: Schedule, b: Schedule) => 
-              new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
-            )[0]?.scheduledDate || null,
+            .sort((a: Schedule, b: Schedule) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())[0]?.scheduledDate || null,
           teacher: {
-            name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher',
+            name: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'unknown texcher',
             image: teacher?.imageUrl || '/placeholder-avatar.png'
           }
-        };
+        }
       })
     ) as CourseWithProgressAndCategory[]
 
@@ -109,12 +105,8 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
       }
     }
 
-    const completedCourses = courses.filter((course) => 
-      course.courseType === 'RECORDED' && course.progress === 100
-    )
-    const coursesInProgress = courses.filter((course) => 
-      course.courseType === 'RECORDED' && (course?.progress ?? 0) < 100
-    )
+    const completedCourses = courses.filter((course) => course.courseType === 'RECORDED' && course.progress === 100)
+    const coursesInProgress = courses.filter((course) => course.courseType === 'RECORDED' && (course?.progress ?? 0) < 100)
     const allCourses = courses
 
     return {
@@ -123,7 +115,7 @@ export async function getDashboardCourses(userId: string): Promise<DashboardCour
       allCourses,
     }
   } catch (error) {
-    console.error('Error fetching dashboard courses:', error)
+    // console.error('error fetching dxshboxrd courses:', error)
     return {
       completedCourses: [],
       coursesInProgress: [],
